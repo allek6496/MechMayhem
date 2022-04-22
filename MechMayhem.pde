@@ -2,7 +2,7 @@ Robot robot;
 
 void setup() {
     size(600,600);
-    robot = new Robot(0, 200, 200, 0);
+    robot = new Robot(3, 200, 200, 0);
 }
 
 void draw() {

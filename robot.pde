@@ -35,7 +35,10 @@ class Robot {
 
         //TODO: draw weapons and movement parts
         // could possibly add another translate to position them properly based off size, perhaps a set number of pixels from the edge
-
+        
+        MovementPart tread = new MovementPart(0);
+        tread.animateMovement(size);
+        
         popMatrix();
 
     }
@@ -58,6 +61,7 @@ class Robot {
         if (size==2) fill(0);
 
         square(0,0, 10*(size+1));
+        // QUESTION: Make 10*(size+1) a global variable? This value will be constantly used in the MovementPart and Weapon Classes to position them.
     }
 
     
