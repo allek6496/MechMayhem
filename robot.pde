@@ -6,6 +6,8 @@ class Robot {
     PVector pos; // center of the robot
     float rotation; // in radians, 0 == pointing up
 
+    MovementPart tread;
+
     // TODO: build part/spark classes
     // ArrayList<Spark> sparks;
     // ArrayList<Part> parts;
@@ -19,6 +21,8 @@ class Robot {
 
         this.hp = 100*(1+size); // 100 for small, 200 for medium and 300 for large
         this.speed = 1+size;
+
+        tread = new MovementPart(0, size);
     }
 
     void update() {
@@ -36,8 +40,7 @@ class Robot {
         //TODO: draw weapons and movement parts
         // could possibly add another translate to position them properly based off size, perhaps a set number of pixels from the edge
         
-        MovementPart tread = new MovementPart(0);
-        tread.animateMovement(size);
+        tread.animateMovement();
         
         popMatrix();
 

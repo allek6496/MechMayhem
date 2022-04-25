@@ -11,12 +11,14 @@ Caution: Only .svg files from Adobe Illustrator or Inkscape work
 */
 class MovementPart{
   int type; // Tread, Wheel, Leg. 
+  int size;
   
-  MovementPart(int t){
+  MovementPart(int t, int size){
     this.type = t;
+    this.size = size;
   }
   
-  void animateMovement(int size){ 
+  void animateMovement(){ 
     if (type == 0){ // if Tread
       PShape tread1;
       PShape tread2;
