@@ -2,7 +2,7 @@ Robot robot;
 
 void setup() {
     size(600,600);
-    robot = new Robot(3, 200, 200, 0);
+    robot = new Robot(2, 0.5, 200, 200, 0);
 }
 
 void draw() {
@@ -13,5 +13,5 @@ void draw() {
     textAlign(LEFT,TOP);
     text("LOL",0,0);
 
-    robot.update();
+    robot.update(null);
 }
