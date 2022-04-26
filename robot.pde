@@ -6,7 +6,7 @@ class Robot {
     PVector pos; // center of the robot
     float rotation; // in radians, 0 == pointing up
 
-    MovementPart tread;
+    MovementPart mP;
 
     // TODO: build part/spark classes
     // ArrayList<Spark> sparks;
@@ -22,7 +22,7 @@ class Robot {
         this.hp = 100*(1+size); // 100 for small, 200 for medium and 300 for large
         this.speed = 1+size;
 
-        tread = new MovementPart(0, size);
+        mP = new MovementPart(0, size); // creates a tread appropriate for a large robot.
     }
 
     void update() {
@@ -40,7 +40,7 @@ class Robot {
         //TODO: draw weapons and movement parts
         // could possibly add another translate to position them properly based off size, perhaps a set number of pixels from the edge
         
-        tread.animateMovement();
+        mP.animateMovement();
         
         popMatrix();
 
@@ -64,7 +64,6 @@ class Robot {
         if (size==2) fill(0);
 
         square(0,0, 10*(size+1));
-        // QUESTION: Make 10*(size+1) a global variable? This value will be constantly used in the MovementPart and Weapon Classes to position them.
     }
 
     
