@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="210mm"
+   height="297mm"
+   viewBox="0 0 210 297"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.1.2 (b8e25be833, 2022-02-05)"
+   sodipodi:docname="tread2.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="0.5"
+     inkscape:cx="213"
+     inkscape:cy="439"
+     inkscape:window-width="2400"
+     inkscape:window-height="1261"
+     inkscape:window-x="2391"
+     inkscape:window-y="-9"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs2" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <g
+       id="g1298">
+      <g
+         id="g10"
+         style="fill:#000000"
+         transform="matrix(0.95050536,0,0,1.0465413,-29.409539,0)">
+        <path
+           style="fill:#000000"
+           d="M 240.861,283.196 H 42.335 c -6.005,0 -10.878,-4.873 -10.878,-10.878 V 10.878 C 31.457,4.873 36.33,0 42.335,0 h 198.526 c 6.005,0 10.878,4.873 10.878,10.878 v 261.44 c 0,6.01 -4.873,10.878 -10.878,10.878 z"
+           id="path2" />
+        <path
+           style="fill:#000000"
+           d="M 215.428,233.82 H 67.763 c -5.619,0 -10.171,-4.553 -10.171,-10.176 V 46.384 c 0,-5.619 4.552,-10.176 10.171,-10.176 h 147.665 c 5.619,0 10.171,4.552 10.171,10.176 v 177.259 c 0.005,5.624 -4.553,10.177 -10.171,10.177 z"
+           id="path4" />
+        <circle
+           style="fill:#000000"
+           cx="141.59801"
+           cy="259.715"
+           r="8.8380003"
+           id="circle6" />
+        <circle
+           style="fill:#000000"
+           cx="141.59801"
+           cy="18.509001"
+           r="2.6429999"
+           id="circle8" />
+      </g>
+      <g
+         id="g12"
+         transform="matrix(0.95050536,0,0,1.0465413,-29.409539,0)" />
+      <g
+         id="g14"
+         transform="matrix(0.95050536,0,0,1.0465413,-29.409539,0)" />
+      <g
+         id="g16"
+         transform="matrix(0.95050536,0,0,1.0465413,-29.409539,0)" />
+      <g
+         id="g18"
+         transform="matrix(0.95050536,0,0,1.0465413,-29.409539,0)" />
+      <g
+         id="g20"
+         transform="matrix(0.95050536,0,0,1.0465413,-29.409539,0)" />
+      <g
+         id="g22"
+         transform="matrix(0.95050536,0,0,1.0465413,-29.409539,0)" />
+      <g
+         id="g24"
+         transform="matrix(0.95050536,0,0,1.0465413,-29.409539,0)" />
+      <g
+         id="g26"
+         transform="matrix(0.95050536,0,0,1.0465413,-29.409539,0)" />
+      <g
+         id="g28"
+         transform="matrix(0.95050536,0,0,1.0465413,-29.409539,0)" />
+      <g
+         id="g30"
+         transform="matrix(0.95050536,0,0,1.0465413,-29.409539,0)" />
+      <g
+         id="g32"
+         transform="matrix(0.95050536,0,0,1.0465413,-29.409539,0)" />
+      <g
+         id="g34"
+         transform="matrix(0.95050536,0,0,1.0465413,-29.409539,0)" />
+      <g
+         id="g36"
+         transform="matrix(0.95050536,0,0,1.0465413,-29.409539,0)" />
+      <g
+         id="g38"
+         transform="matrix(0.95050536,0,0,1.0465413,-29.409539,0)" />
+      <g
+         id="g40"
+         transform="matrix(0.95050536,0,0,1.0465413,-29.409539,0)" />
+      <rect
+         style="fill:#808080;stroke-width:1.00286"
+         id="rect875"
+         width="210.423"
+         height="6.6851802"
+         x="0"
+         y="37.570847" />
+      <rect
+         style="fill:#808080;stroke-width:1.00286"
+         id="rect891"
+         width="210.423"
+         height="6.6851802"
+         x="0"
+         y="112.57085" />
+      <rect
+         style="fill:#808080;stroke-width:1.00286"
+         id="rect893"
+         width="210.423"
+         height="6.6851802"
+         x="0"
+         y="187.57033" />
+      <rect
+         style="fill:#808080;stroke-width:1.00286"
+         id="rect895"
+         width="210.423"
+         height="6.6851802"
+         x="0"
+         y="262.57053" />
+    </g>
+  </g>
+</svg>
