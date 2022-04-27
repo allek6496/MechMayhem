@@ -12,19 +12,22 @@ class MovementPart{
   int size;
   int shapeIndex = 0;
   int robotLength;
+
+  Robot robot;
   
-  MovementPart(int t, int s){
+  MovementPart(int t, Robot robot){
     this.type = t;
-    this.size = s;
-    this.robotLength = 10*(s+1);
+    this.size = robot.size;
+    this.robot = robot;
+    this.robotLength = robot.length();
   }
   
   void animateMovement(){ 
     switch (type){
       case 0:  // if Tread
-        PShape tread1 = loadShape("treads\\tread1.svg");
-        PShape tread2 = loadShape("treads\\tread2.svg");
-        PShape tread3 = loadShape("treads\\tread3.svg");
+        PShape tread1 = loadShape("treads/tread1.svg");
+        PShape tread2 = loadShape("treads/tread2.svg"); // i have to change this to / every time i do anything so just change it back to \\ lmao
+        PShape tread3 = loadShape("treads/tread3.svg");
         PShape[] shapes = {tread1, tread2, tread3};
         shapeMode(CENTER);
         animate(shapes, 2, 3, 5); 

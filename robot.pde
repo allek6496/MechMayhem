@@ -1,11 +1,15 @@
 class Robot {
-    // Global settings
-    int wallBuffer = 75; // how many pixels before the bot starts turning away from the wall
+    // ----- Global settings
+    int wallOffset = 30; // how many pixels before each bot starts turning away from the wall (larger turns sooner)
+    float wallTurnFactor = 2; // how strongly it turns away from the wall
 
+    // ----- Local variables
     int size; // 0-small 1-medium 2-large
     int hp; 
     int speed;
     float turnSpeed;
+
+    int wallBuffer;
 
     PVector pos; // center of the robot
     float rotation; // in radians, 0 == pointing right
@@ -30,15 +34,17 @@ class Robot {
         this.status = 1;
 
         this.hp = 100*(1+size); // 100 for small, 200 for medium and 300 for large
-        this.speed = 1+size;
-        this.turnSpeed = 0.1;
+        this.speed = 4-size;
+        this.turnSpeed = 0.05*(2-size/2.0);
 
-        mP = new MovementPart(0, size); // creates a tread appropriate for a large robot.
+        this.wallBuffer = wallOffset + length();
+
+        mP = new MovementPart(0, this); // creates a tread appropriate for a large robot.
     }
 
     void update(Robot opponent) {
         //TODO: run ai and other stuff
-        aiMove(new PVector(mouseX, mouseY));
+        aiMove(opponent);
 
         // draw the bot
         pushMatrix();
@@ -58,10 +64,12 @@ class Robot {
     }
 
     // move based off of semi-intelligent decision making
-    void aiMove(PVector oPos) {
+    void aiMove(Robot opponent) {
         // react to the opponent        
-        if (true) {
-            // don't attempt to change every frame
+        if (opponent != null) {
+            PVector oPos = opponent.pos;
+
+            // =========== CHANGE THE STATUS
             if (random(1) < 0.1) {
                 // chance to turn aggressive
                 if (random(1) < pow(aggressiveness, 6)) {
@@ -75,47 +83,63 @@ class Robot {
                 } if (random(2) < pow(1-abs(aggressiveness-0.5), 6)) status = 1;
             }
 
-
+            // =========== TURN THE BOT
             // direction to the other bot
-            PVector d = oPos.sub(this.pos);
+            PVector d = PVector.sub(oPos, this.pos);
             // this is being janky
             float oDir = headToAng(d.heading());
 
             // if it's aggressive, move towards the enemy
             if (status == 2) {
-                println("A");
                 turnTo(oDir, 1);
 
             // if it's neutral, travel perpindicular to the enemy
             } else if (status == 1) {
-                println("N");
                 // choose whether to travel perpindicular to the right or the left
                 if ((rotation < oDir && rotation > oDir - PI) || rotation > oDir + PI) turnTo((oDir + 3*PI/2) % TWO_PI, 1);
                 else turnTo((oDir + PI/2) % TWO_PI, 1);
                 
             // if it's defensive, run away
             } else if (status == 0) {
-                println("D");
                 turnTo((oDir + PI) % TWO_PI, 1);
             }
 
+            // =========== AVOID THE WALLS
             // now that it's turned where it would like to go, turn away from the wall, to prevent unnecessary collisions
             PVector wallBounce = new PVector(0, 0); // where should it try and turn to
             
             // move away from the left and right walls
-            if (pos.x < 75) wallBounce.x = 1;
-            if (width - 75 < pos.x) wallBounce.x = -1;
+            if (pos.x < wallBuffer) wallBounce.x = 1;
+            if (width - wallBuffer < pos.x) wallBounce.x = -1;
 
             // move away from the top and bottom walls
-            if (pos.y < 75) wallBounce.y = 1;
-            if (height - 75 < pos.y) wallBounce.y = -1;
+            if (pos.y < wallBuffer) wallBounce.y = 1;
+            if (height - wallBuffer < pos.y) wallBounce.y = -1;
 
-            if (wallBounce.mag() != 0) turnTo(headToAng(wallBounce.heading()), 2);
+            if (wallBounce.mag() != 0) turnTo(headToAng(wallBounce.heading()), wallTurnFactor);
 
-            // now that it's turned just move forward (needs collision detection)
-
+            // =========== MOVE THE BOT
             pos.x += cos(-1*rotation)*speed;
             pos.y += sin(-1*rotation)*speed;
+
+            // =========== COLLISION CHECK
+            // first check for a collision with the other bot
+            float radius = length()*sqrt(2)/2.0;
+            float dist = radius + opponent.length()*sqrt(2)/2.0 - pos.dist(oPos);
+            if (dist > 0) {
+                // if it is overlapping, move it directly away from the other bot equal to the overlap
+                PVector offset = PVector.sub(pos, oPos);
+                offset.setMag(dist);
+
+                pos.add(offset);
+            }
+
+            // wall collision
+            if (pos.x < radius) pos.x = radius;
+            if (pos.x > width - radius) pos.x = width - radius;
+
+            if (pos.y < radius) pos.y = radius;
+            if (pos.y > height - radius) pos.y = height - radius;
 
         // if there's no opponent just wander
         } else {
@@ -161,7 +185,7 @@ class Robot {
         if (size==1) fill(0,255,0);
         if (size==2) fill(255, 0, 0);
 
-        square(0,0, 10*(size+1));
+        square(0,0, length());
     }
 
     // Deal damage to the bot at a parcicular location (loc used for spark/part spawning)
@@ -169,6 +193,10 @@ class Robot {
         this.hp -= damage;
 
         // TODO: spawn sparks/parts
+    }
+
+    int length() {
+        return 12*(size+4);
     }
 
 }
