@@ -6,7 +6,7 @@ class Robot {
     // ----- Local variables
     int size; // 0-small 1-medium 2-large
     int hp; 
-    int speed;
+    float speed;
     float turnSpeed;
 
     int wallBuffer;
@@ -34,7 +34,7 @@ class Robot {
         this.status = 1;
 
         this.hp = 100*(1+size); // 100 for small, 200 for medium and 300 for large
-        this.speed = 4-size;
+        this.speed = 6-size*0.75;
         this.turnSpeed = 0.05*(2-size/2.0);
 
         this.wallBuffer = wallOffset + length();
@@ -126,7 +126,7 @@ class Robot {
             // first check for a collision with the other bot
             float radius = length()*sqrt(2)/2.0;
             float dist = radius + opponent.length()*sqrt(2)/2.0 - pos.dist(oPos);
-            if (dist > 0) {
+            if (dist > 0 && size <= opponent.size) {
                 // if it is overlapping, move it directly away from the other bot equal to the overlap
                 PVector offset = PVector.sub(pos, oPos);
                 offset.setMag(dist);
