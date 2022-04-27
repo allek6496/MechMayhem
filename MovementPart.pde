@@ -39,9 +39,9 @@ class MovementPart{
   
   void updateShape(int shapeInterval, PShape[] shapes){ // updates the shape of the MovementPart every shapeInterval. 
      if (frameCount % shapeInterval == 0){ // if it is time to update the frame, draw the next shape.
-      shape(shapes[(shapeIndex) % shapes.length], robotLength/2, 0, 2*size, robotLength); 
+      shape(shapes[(shapeIndex) % shapes.length], robotLength/2, 0, 2*size, robotLength); // shape(shape, x, y, width, height)
       shape(shapes[(shapeIndex) % shapes.length], -robotLength/2, 0, 2*size, robotLength);
-      shapeIndex = (shapeIndex + 1) % 2;
+      shapeIndex = (shapeIndex + 1) % shapes.length;
      }
      else{ // otherwise, keep drawing the current shape.
       shape(shapes[shapeIndex], robotLength/2, 0, 2*size, robotLength); 
