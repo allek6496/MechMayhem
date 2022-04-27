@@ -1,4 +1,7 @@
 class Robot {
+    // Global settings
+    int wallBuffer = 75; // how many pixels before the bot starts turning away from the wall
+
     int size; // 0-small 1-medium 2-large
     int hp; 
     int speed;
@@ -67,39 +70,47 @@ class Robot {
                 // chance to turn defensive 
                 } if (random(1) < pow(1-aggressiveness, 6)) {
                     status = 0;
-                } if (random(1) < pow(1-abs(aggressiveness-0.5), 6)) status = 1;
+
+                // chance to turn neutral (smaller chance)
+                } if (random(2) < pow(1-abs(aggressiveness-0.5), 6)) status = 1;
             }
 
 
             // direction to the other bot
             PVector d = oPos.sub(this.pos);
             // this is being janky
-            float oDir = d.heading();
-            if (oDir < 0) oDir *= -1;
-            else oDir = TWO_PI-oDir;
-
-            println(oDir, rotation);
+            float oDir = headToAng(d.heading());
 
             // if it's aggressive, move towards the enemy
             if (status == 2) {
                 println("A");
-                turnTo(oDir);
+                turnTo(oDir, 1);
 
             // if it's neutral, travel perpindicular to the enemy
             } else if (status == 1) {
                 println("N");
                 // choose whether to travel perpindicular to the right or the left
-                if ((rotation < oDir && rotation > oDir - PI) || rotation > oDir + PI) turnTo((oDir - PI/2) % TWO_PI);
-                else turnTo((oDir + PI/2) % TWO_PI);
+                if ((rotation < oDir && rotation > oDir - PI) || rotation > oDir + PI) turnTo((oDir + 3*PI/2) % TWO_PI, 1);
+                else turnTo((oDir + PI/2) % TWO_PI, 1);
                 
             // if it's defensive, run away
             } else if (status == 0) {
                 println("D");
-                turnTo((oDir + PI) % TWO_PI);
+                turnTo((oDir + PI) % TWO_PI, 1);
             }
 
             // now that it's turned where it would like to go, turn away from the wall, to prevent unnecessary collisions
+            PVector wallBounce = new PVector(0, 0); // where should it try and turn to
             
+            // move away from the left and right walls
+            if (pos.x < 75) wallBounce.x = 1;
+            if (width - 75 < pos.x) wallBounce.x = -1;
+
+            // move away from the top and bottom walls
+            if (pos.y < 75) wallBounce.y = 1;
+            if (height - 75 < pos.y) wallBounce.y = -1;
+
+            if (wallBounce.mag() != 0) turnTo(headToAng(wallBounce.heading()), 2);
 
             // now that it's turned just move forward (needs collision detection)
 
@@ -112,21 +123,17 @@ class Robot {
             pos.x += cos(-1*rotation + PI/2)*speed;
             pos.y += sin(-1*rotation + PI/2)*speed;
         }
-
-    }
-
-    void turnAway(float d) {
     }
 
     // turns the robot at turnSpeed towards direction d
-    void turnTo(float d) {
+    void turnTo(float d, float factor) {
         // don't attempt to turn if it's already close enough (prevents jittering)
-        if (abs(d-rotation) > turnSpeed) {
-            // 1 increases the turn, -1 decreases
-            int dMod = 0;
+        if (abs(d-rotation) > turnSpeed*factor) {
+            // positive increases the turn, negative decreases. start at factor to affect how quickly it turns
+            float dMod = factor;
 
-            if (rotation < d) dMod = 1;
-            else dMod = -1;
+            // turn the other way
+            if (rotation > d) dMod *= -1;
 
             // if it's more than a half rotation away, the above calculation will be backwards from the fastest direction
             if (abs(d-rotation) > PI) dMod *= -1;
@@ -136,6 +143,12 @@ class Robot {
             rotation %= TWO_PI;
             if (rotation < 0) rotation += TWO_PI;
         }
+    }
+
+    // converts the heading from PVector.heading() to an angle counterclockwise of right
+    private float headToAng(float heading) {
+        if (heading < 0) return heading * -1;
+        else return TWO_PI-heading;
     }
 
     // draws only the chassis
