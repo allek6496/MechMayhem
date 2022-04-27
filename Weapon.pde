@@ -10,6 +10,6 @@ class Weapon {
 
 class SawBlade extends Weapon {
     SawBlade(Robot robot) {
-        this(0, robot);
+        super(0, robot);
     }
 }
