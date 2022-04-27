@@ -4,7 +4,6 @@ Movement
     No animation (mostly hidden)
   Leg (crab style)
     Animation that plays during movement, continuous back and forth on pivot
-TODO: Also need to show side view. 
 Caution: Only .svg files from Adobe Illustrator or Inkscape work
 */
 class MovementPart{
@@ -22,10 +21,7 @@ class MovementPart{
   void animateMovement(){ 
     switch (type){
       case 0:  // if Tread
-        PShape tread1 = loadShape("treads\\tread1.svg");
-        PShape tread2 = loadShape("treads\\tread2.svg");
-        PShape tread3 = loadShape("treads\\tread3.svg");
-        PShape[] shapes = {tread1, tread2, tread3};
+        PShape[] shapes = {tread1, tread2};
         shapeMode(CENTER);
         animate(shapes, 2, 3, 5); 
         
