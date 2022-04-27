@@ -13,7 +13,7 @@ class Robot {
     float aggressiveness; // 0 == defensive, 1 == aggressive, aggressiveness only gives chance to change aggression
     int status; // 0 == defensive, 1 == neutral, 2 == aggressive
 
-    MovementPart tread;
+    MovementPart mP;
 
     // TODO: build part/spark classes
     // ArrayList<Spark> sparks;
@@ -33,7 +33,7 @@ class Robot {
         this.speed = 1+size;
         this.turnSpeed = 0.1;
 
-        this.tread = new MovementPart(0, size);
+        mP = new MovementPart(0, size); // creates a tread appropriate for a large robot.
     }
 
     void update(Robot opponent) {
@@ -51,7 +51,7 @@ class Robot {
         //TODO: draw weapons and movement parts
         // could possibly add another translate to position them properly based off size, perhaps a set number of pixels from the edge
         
-        tread.animateMovement();
+        mP.animateMovement();
         
         popMatrix();
 
@@ -162,7 +162,6 @@ class Robot {
         if (size==2) fill(255, 0, 0);
 
         square(0,0, 10*(size+1));
-        // QUESTION: Make 10*(size+1) a global variable? This value will be constantly used in the MovementPart and Weapon Classes to position them.
     }
 
     // Deal damage to the bot at a parcicular location (loc used for spark/part spawning)
