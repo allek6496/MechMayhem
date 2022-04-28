@@ -5,7 +5,7 @@ PShape sawblade;
 
 void setup() {
   loadShapes();
-  frameRate(30);
+  frameRate(45);
   size(600,600);
   robot1 = new Robot(2, 0.9, 200, 200, 0);
   robot2 = new Robot(0, 0.75, 400, 400, 0);
