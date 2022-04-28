@@ -18,6 +18,7 @@ class Robot {
     int status; // 0 == defensive, 1 == neutral, 2 == aggressive
 
     MovementPart mP;
+    Weapon weapon;
 
     // TODO: build part/spark classes
     // ArrayList<Spark> sparks;
@@ -40,6 +41,7 @@ class Robot {
         this.wallBuffer = wallOffset + length();
 
         mP = new MovementPart(0, this); // creates a tread appropriate for a large robot.
+        weapon = new Weapon(0, this);
     }
 
     void update(Robot opponent) {
@@ -58,6 +60,7 @@ class Robot {
         // could possibly add another translate to position them properly based off size, perhaps a set number of pixels from the edge
         
         mP.animateMovement();
+        weapon.animateWeapon();
         
         popMatrix();
 
