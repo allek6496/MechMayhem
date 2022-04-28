@@ -21,7 +21,7 @@ class Robot {
     Weapon weapon;
 
     // TODO: build part/spark classes
-    // ArrayList<Spark> sparks;
+    ArrayList<SparkExplosion> sparks;
     // ArrayList<Part> parts;
 
     Robot(int size, float aggressiveness, int x, int y, float rotation) {
@@ -42,6 +42,7 @@ class Robot {
 
         mP = new MovementPart(0, this); // creates a tread appropriate for a large robot.
         weapon = new Weapon(0, this);
+        sparks = new ArrayList<SparkExplosion>();
     }
 
     void update(Robot opponent) {
@@ -60,7 +61,6 @@ class Robot {
         // could possibly add another translate to position them properly based off size, perhaps a set number of pixels from the edge
         
         mP.animateMovement();
-        weapon.animateWeapon();
         
         popMatrix();
 
@@ -127,8 +127,7 @@ class Robot {
 
             // =========== COLLISION CHECK
             // first check for a collision with the other bot
-            float radius = length()*sqrt(2)/2.0;
-            float dist = radius + opponent.length()*sqrt(2)/2.0 - pos.dist(oPos);
+            float dist = radius() + opponent.length()*sqrt(2)/2.0 - pos.dist(oPos);
             if (dist > 0 && size <= opponent.size) {
                 // if it is overlapping, move it directly away from the other bot equal to the overlap
                 PVector offset = PVector.sub(pos, oPos);
@@ -138,11 +137,11 @@ class Robot {
             }
 
             // wall collision
-            if (pos.x < radius) pos.x = radius;
-            if (pos.x > width - radius) pos.x = width - radius;
+            if (pos.x < radius()) pos.x = radius();
+            if (pos.x > width - radius()) pos.x = width - radius();
 
-            if (pos.y < radius) pos.y = radius;
-            if (pos.y > height - radius) pos.y = height - radius;
+            if (pos.y < radius()) pos.y = radius();
+            if (pos.y > height - radius()) pos.y = height - radius();
 
         // if there's no opponent just wander
         } else {
@@ -191,15 +190,26 @@ class Robot {
         square(0,0, length());
     }
 
+    void drawEffects(Robot opponent) {
+        weapon.update(opponent);
+
+        for (SparkExplosion spark : sparks) {
+            spark.run(frameCount/100.0);
+        }
+    }
+
     // Deal damage to the bot at a parcicular location (loc used for spark/part spawning)
     void dealDamage(int damage, PVector loc) {
-        this.hp -= damage;
+        // this.hp -= damage;
 
-        // TODO: spawn sparks/parts
+        sparks.add(new SparkExplosion(loc, int(random(2, 10))));
     }
 
     int length() {
         return 12*(size+4);
     }
 
+    float radius() {
+        return length()*sqrt(2)/2.0;
+    }
 }
