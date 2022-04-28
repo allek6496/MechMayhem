@@ -8,7 +8,7 @@
    version="1.1"
    id="svg5"
    inkscape:version="1.1.2 (b8e25be833, 2022-02-05)"
-   sodipodi:docname="tread1.svg"
+   sodipodi:docname="tread7.svg"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
@@ -114,36 +114,27 @@
        width="210.423"
        height="6.6851802"
        x="0"
-       y="-8.622805e-07" />
+       y="60.854202" />
     <rect
        style="fill:#808080;stroke-width:1.00286"
        id="rect891"
        width="210.423"
        height="6.6851802"
        x="0"
-       y="75" />
+       y="135.85408" />
     <rect
        style="fill:#808080;stroke-width:1.00286"
        id="rect893"
        width="210.423"
        height="6.6851802"
        x="0"
-       y="150" />
+       y="210.85335" />
     <rect
        style="fill:#808080;stroke-width:1.00286"
        id="rect895"
        width="210.423"
        height="6.6851802"
        x="0"
-       y="225" />
-    <rect
-       style="fill:#808080;stroke-width:0.669677"
-       id="rect897"
-       width="193.97388"
-       height="4.4365516"
-       x="5.5562501"
-       y="291.93976"
-       ry="0.82905072"
-       rx="0.82905072" />
+       y="285.85422" />
   </g>
 </svg>

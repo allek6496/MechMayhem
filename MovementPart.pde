@@ -24,9 +24,9 @@ class MovementPart{
   void animateMovement(){ 
     switch (type){
       case 0:  // if Tread
-        PShape[] shapes = {tread1, tread2};
+        PShape[] shapes = {tread1, tread2, tread3, tread4, tread5, tread6, tread7};
         shapeMode(CENTER);
-        animate(shapes, 2, 3, 5); 
+        animate(shapes, 1, 2, 3); 
         
       case 1:  // if Wheel
         break;

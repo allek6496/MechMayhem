@@ -1,8 +1,7 @@
 Robot robot1;
 Robot robot2;
-PShape tread1, tread2;
+PShape tread1, tread2, tread3, tread4, tread5, tread6, tread7;
 PShape sawblade;
-// PShape sawblade1, sawblade2, sawblade3, sawblade4, sawblade5, sawblade6;
 
 void setup() {
   loadShapes();
@@ -30,11 +29,21 @@ void draw() {
 void loadShapesL() {
   tread1  = loadShape("Movement/treads/tread1.svg");
   tread2  = loadShape("Movement/treads/tread2.svg");
+  tread3  = loadShape("Movement/treads/tread3.svg");
+  tread4  = loadShape("Movement/treads/tread4.svg");
+  tread5  = loadShape("Movement/treads/tread5.svg");
+  tread6  = loadShape("Movement/treads/tread6.svg");
+  tread7  = loadShape("Movement/treads/tread7.svg");
   sawblade = loadShape("Weapon/SawBlade/sawblade1.svg");
 }
 
 void loadShapes(){ // loads all shapes for weapon and movementPart Classes
   tread1 = loadShape("Movement\\treads\\tread1.svg");
   tread2 = loadShape("Movement\\treads\\tread2.svg");
+  tread3 = loadShape("Movement\\treads\\tread3.svg");
+  tread4 = loadShape("Movement\\treads\\tread4.svg");
+  tread5 = loadShape("Movement\\treads\\tread5.svg");
+  tread6 = loadShape("Movement\\treads\\tread6.svg");
+  tread7 = loadShape("Movement\\treads\\tread7.svg");
   sawblade = loadShape("Weapon\\SawBlade\\sawblade1.svg");
 }
