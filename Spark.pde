@@ -48,7 +48,7 @@
     addforce(t);
     velocity.add(acceleration);
     position.add(velocity);
-    lifespan -= 10;
+    lifespan -= 20;
     r /= 1.02;
     g /= 1.02;
     b /= 1.02;
@@ -57,8 +57,8 @@
   void display() 
   {
     noStroke();
-    fill(r,g,b,sqrt(lifespan/255.0)*255);
-    circle(position.x,position.y,2);
+    fill(r,g,b,sqrt(lifespan/200.0)*255);
+    circle(position.x,position.y,3);
   }
   
   boolean isDead() 

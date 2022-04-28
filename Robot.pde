@@ -5,7 +5,7 @@ class Robot {
 
     // ----- Local variables
     int size; // 0-small 1-medium 2-large
-    int hp; 
+    float hp; 
     float speed;
     float turnSpeed;
 
@@ -24,7 +24,7 @@ class Robot {
     ArrayList<SparkExplosion> sparks;
     // ArrayList<Part> parts;
 
-    Robot(int size, float aggressiveness, int x, int y, float rotation) {
+    Robot(int size, int weaponType, float aggressiveness, int x, int y, float rotation) {
         this.pos = new PVector(x,y);
         this.rotation = rotation; 
 
@@ -40,9 +40,14 @@ class Robot {
 
         this.wallBuffer = wallOffset + length();
 
-        mP = new MovementPart(0, this); // creates a tread appropriate for a large robot.
-        weapon = new Sawblade(this);
+        // store all the spark explosions made so far
         sparks = new ArrayList<SparkExplosion>();
+
+        mP = new MovementPart(0, this); // creates a tread for this bot TODO: multiple types
+        
+        // make the appropriate weapon
+        if (weaponType == 0) weapon = new Sawblade(this); 
+        else if (weaponType == 2) weapon = new Hammer(this); 
     }
 
     void update(Robot opponent) {
@@ -199,16 +204,21 @@ class Robot {
     }
 
     // Deal damage to the bot at a parcicular location (loc used for spark/part spawning)
-    void dealDamage(int damage, PVector loc) {
-        // this.hp -= damage;
+    void dealDamage(float damage, PVector loc) {
+        this.hp -= damage;
 
-        sparks.add(new SparkExplosion(loc, int(random(3, 8))));
+        // more damage = more sparks
+        sparks.add(new SparkExplosion(loc, int(random(6*sqrt(damage), 8*sqrt(damage)))));
+
+        // TODO: spawn parts (based off of rolling amount of damage dealt)
     }
 
+    // side length
     int length() {
         return 12*(size+4);
     }
 
+    // hitbox radius (smallest circle containing the corners)
     float radius() {
         return length()*sqrt(2)/2.0;
     }
