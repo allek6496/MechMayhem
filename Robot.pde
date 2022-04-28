@@ -41,7 +41,7 @@ class Robot {
         this.wallBuffer = wallOffset + length();
 
         mP = new MovementPart(0, this); // creates a tread appropriate for a large robot.
-        weapon = new Weapon(0, this);
+        weapon = new Sawblade(this);
         sparks = new ArrayList<SparkExplosion>();
     }
 
@@ -51,6 +51,7 @@ class Robot {
 
         // draw the bot
         pushMatrix();
+    
         // make the bot's center 0,0 and rotate so up is forward
         translate(pos.x,pos.y);
         rotate(-1*rotation + PI/2);
@@ -63,7 +64,6 @@ class Robot {
         mP.animateMovement();
         
         popMatrix();
-
     }
 
     // move based off of semi-intelligent decision making

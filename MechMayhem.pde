@@ -4,7 +4,7 @@ PShape tread1, tread2, tread3, tread4, tread5, tread6, tread7;
 PShape sawblade;
 
 void setup() {
-  loadShapes();
+  loadShapesL();
   frameRate(45);
   size(600,600);
   robot1 = new Robot(2, 0.9, 200, 200, 0);
