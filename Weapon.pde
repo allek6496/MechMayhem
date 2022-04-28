@@ -25,13 +25,129 @@ class Weapon {
     checkCollision(opponent);
   }
 
-  void damage(Robot opponent, PVector loc) {
-    opponent.dealDamage(damage, loc);
-  }
-
   void draw() { return; }
 
   void checkCollision(Robot opponent) { return; }
+}
+
+class Laser extends Weapon {
+  float turnSpeed = 0.2;
+  int fireRate = 25;
+
+  float angle; // 0 is straight ahead, varies in [-PI/2, PI/2]
+  int cooldown;
+
+  ArrayList<Pulse> pulses;
+
+  class Pulse {
+    int len = 10;
+    PVector pos;
+    PVector vel;
+    float speed = 20;
+  
+    Pulse(float x, float y, float angle) { // for angle, 0 is right and increases counterclockwise
+      this.pos = new PVector(x, y);
+      this.vel = PVector.fromAngle(angle).mult(speed);
+    }
+
+    void update() {
+      // move
+      pos.add(vel);
+
+      // draw
+      stroke(200, 0, 50);
+      strokeWeight(5);
+
+      // find the position of the trailing point
+      PVector trail = new PVector(vel.x, vel.y);
+      trail.setMag(len);
+      trail.mult(-1);
+      trail.add(pos);
+
+      println(trail);
+
+      if (trail.x < 0 || trail.x > width || trail.y < 0 || trail.y > height) pulses.remove(this);
+
+      line(pos.x, pos.y, trail.x, trail.y);
+
+      noStroke();
+    }
+
+    // checks if this laser has hit an opponent
+    boolean colliding(Robot opponent) {
+      return pos.dist(opponent.pos) < opponent.radius();
+    }
+  } 
+
+  Laser(Robot robot) {
+    super(1, robot);
+    this.damage = 5;
+    this.angle = 0;
+    this.pulses = new ArrayList<Pulse>();
+    this.cooldown = fireRate;
+  }
+
+  void checkCollision(Robot opponent) {
+    // position of the laser
+    PVector pos = new PVector(0, robot.length()/3);
+    pos.rotate(-1*robot.rotation - PI/2);
+    pos.add(robot.pos);
+
+    // ===== TURN THE LASER
+    float d = robot.headToAng(PVector.sub(opponent.pos, pos).heading());
+
+    d -= robot.rotation;
+    d *= -1;
+
+    // turn towards the enemy iff you're not already close enough
+    if (abs(d-angle) > turnSpeed) {
+      // positive increases the turn, negative decreases.
+      float dMod = 1;
+
+      // turn the other way 
+      if (angle > d) dMod *= -1;
+
+      // if it's more than a half rotation away, the above calculation will be backwards from the fastest direction (must go through the 0-TWO_PI transiton)
+      if (abs(d-angle) > PI) dMod *= -1;
+
+      // turn the robot by the modifier, and keep it bound to TWO_PI radians
+      angle += dMod * turnSpeed;
+
+      // bind the angle to prevent shooting backwards
+      if (angle < -1*PI/2) angle = -1*PI/2;
+      if (angle > PI/2) angle = PI/2;
+    }
+
+    // ===== SHOOT THE LASER
+    if (cooldown == 0) {
+      cooldown = fireRate;
+
+      pulses.add(new Pulse(pos.x, pos.y, angle - robot.rotation));
+
+    } else cooldown--;
+
+    // ===== UPDATE THE PULSES
+    for (int i = pulses.size()-1; i >= 0; i--) {
+      Pulse pulse = pulses.get(i);
+      pulse.update();
+      
+      if (pulse.colliding(opponent)) {
+        opponent.dealDamage(damage, pulse.pos);
+        pulses.remove(pulse);
+      }
+    }
+
+  }
+
+  // TODO: add some simple art in here for the laser cause it's really ugly (ik it's ugly even though i haven't started writing it yet)
+  void draw() {
+    translate(0, robot.length()/3);
+    rotate(angle);
+
+    rectMode(CENTER);
+    fill(200);
+    rect(0, 0, 10, 20);
+  }
 }
 
 class Hammer extends Weapon {
@@ -39,27 +155,24 @@ class Hammer extends Weapon {
   float animDir; // 1 => descending, -1 => raising
 
   Hammer(Robot robot) {
-    super (1, robot);
+    super (2, robot);
     this.damage = 10;
     this.anim = 0;
     this.animDir = 1;
   }
 
   void checkCollision(Robot opponent) {
-    println(anim);
     // it can't collide with the enemy if the hammer hasn't fully descended (into madness)
     if (anim != 1) return;
     
     PVector point = new PVector(0, armLength());
     point.rotate(-1*robot.rotation - PI/2);
     point.add(robot.pos); // now centered on hammer
-    println(point, opponent.pos);
     fill(0, 255, 0, 100);
     circle(point.x, point.y, 10);
 
     if (point.dist(opponent.pos) < size/4 + opponent.radius()) {
-      damage(opponent, point);
-      println("Hit");
+      opponent.dealDamage(damage, point);
     }
   }
 
@@ -104,7 +217,7 @@ class Sawblade extends Weapon {
     
     if (point.dist(opponent.pos) < size/1.25 + opponent.radius()) {
       point.add(PVector.sub(opponent.pos, point).setMag(size/2.5)); // point is now on the leading edge of the blade
-      damage(opponent, point);
+      opponent.dealDamage(damage, point);
     }
   }
 

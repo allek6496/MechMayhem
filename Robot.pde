@@ -46,8 +46,11 @@ class Robot {
         mP = new MovementPart(0, this); // creates a tread for this bot TODO: multiple types
         
         // make the appropriate weapon
-        if (weaponType == 0) weapon = new Sawblade(this); 
-        else if (weaponType == 2) weapon = new Hammer(this); 
+        switch (weaponType) {
+            case 0: weapon = new Sawblade(this); break;
+            case 1: weapon = new Laser(this); break;
+            case 2: weapon = new Hammer(this); break;
+        }
     }
 
     void update(Robot opponent) {
@@ -94,7 +97,6 @@ class Robot {
             // =========== TURN THE BOT
             // direction to the other bot
             PVector d = PVector.sub(oPos, this.pos);
-            // this is being janky
             float oDir = headToAng(d.heading());
 
             // if it's aggressive, move towards the enemy
@@ -177,7 +179,7 @@ class Robot {
     }
 
     // converts the heading from PVector.heading() to an angle counterclockwise of right
-    private float headToAng(float heading) {
+    float headToAng(float heading) {
         if (heading < 0) return heading * -1;
         else return TWO_PI-heading;
     }
