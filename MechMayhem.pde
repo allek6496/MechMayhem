@@ -5,11 +5,11 @@ PShape sawblade;
 // PShape sawblade1, sawblade2, sawblade3, sawblade4, sawblade5, sawblade6;
 
 void setup() {
-  loadShapesL();
+  loadShapes();
   frameRate(30);
   size(600,600);
-  robot1 = new Robot(2, 0.75, 200, 200, 0);
-  robot2 = new Robot(0, 0.25, 400, 400, 0);
+  robot1 = new Robot(2, 0.9, 200, 200, 0);
+  robot2 = new Robot(0, 0.75, 400, 400, 0);
 }
 
 void draw() {

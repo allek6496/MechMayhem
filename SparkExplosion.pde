@@ -14,9 +14,9 @@ class SparkExplosion
     origin = position;
     createTime=(int)(random(30,50));
     sparks = new ArrayList<Spark>();
-    r=(int)(random(0,255));
-    g=(int)(random(0,255));
-    b=(int)(random(0,255));
+    r=(int)(random(175, 225));
+    g= r + (int)(random(-120, 25));
+    b=0;
 
     for (int i = 0; i < num; i++) {
         addParticle();

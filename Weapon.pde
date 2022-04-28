@@ -23,12 +23,12 @@ class Weapon {
         // sawblade
         case 0 :
             fill(200);
-            rect(0, robot.length()/2+10, 15, robot.length()-20);
+            rect(0, robot.length()/2+10, 13 + 2*robot.size, robot.length()-20);
             
             translate(0, robot.length()-10);
             rotate(rotation);
             shape(sawblade, 0, 0, size, size); // shape(shape, x, y, width, height)
-            rotation += 0.2;
+            rotation += 0.3;
         break;	
     }
     
@@ -42,9 +42,9 @@ class Weapon {
             point.rotate(-1*robot.rotation - PI/2);
             point.add(robot.pos);
             
-            if (point.dist(opponent.pos) < size + opponent.radius()) {
+            if (point.dist(opponent.pos) < size/1.2 + opponent.radius()) {
                 // move point to the leading edge of the blade, and pass that as the damage location
-                point.add(PVector.sub(opponent.pos, point).setMag(size));
+                point.add(PVector.sub(opponent.pos, point).setMag(size/2.4));
                 opponent.dealDamage(1, point);
             }
         break;

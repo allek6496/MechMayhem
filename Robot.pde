@@ -36,7 +36,7 @@ class Robot {
 
         this.hp = 100*(1+size); // 100 for small, 200 for medium and 300 for large
         this.speed = 6-size*0.75;
-        this.turnSpeed = 0.05*(2-size/2.0);
+        this.turnSpeed = 0.06*(2-size/3.0);
 
         this.wallBuffer = wallOffset + length();
 
@@ -184,7 +184,7 @@ class Robot {
         
         // small-blue, medium-green large-red
         if (size==0) fill(0,0,255);
-        if (size==1) fill(0,255,0);
+        if (size==1) fill(10,220,20);
         if (size==2) fill(255, 0, 0);
 
         square(0,0, length());
@@ -202,7 +202,7 @@ class Robot {
     void dealDamage(int damage, PVector loc) {
         // this.hp -= damage;
 
-        sparks.add(new SparkExplosion(loc, int(random(2, 10))));
+        sparks.add(new SparkExplosion(loc, int(random(3, 8))));
     }
 
     int length() {

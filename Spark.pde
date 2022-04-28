@@ -12,13 +12,13 @@
   {
     
     float angle=random(0,TWO_PI);
-    velocity=PVector.fromAngle(angle);
+    velocity=PVector.fromAngle(angle).mult(6);
     acceleration=new PVector(0,0);
     position = positionTemp;
     r=rTemp;
     g=gTemp;
     b=bTemp;
-    lifespan = 50;
+    lifespan = 255;
     mass=1;
   }
 
@@ -27,24 +27,17 @@
     
     update(t);
     display();
-  }
-  
-  void addforceGravity()
-  {
-    
-    PVector graForce=new PVector(0,0.01);
-    acceleration.add(PVector.div(graForce,mass));
-  }
-  
+  }  
  
   void addforce(float t)
   {
     
-    float Strength=noise(position.x,position.y,t);
-    float Angle=Strength*TWO_PI;
-    PVector Force=PVector.fromAngle(Angle);
-    Force.mult(Strength*0.01);
-    acceleration.add( PVector.div(Force,mass));
+    // float angle=(noise(position.x,position.y,t)-0.25)*4*PI;
+    float angle = random(0, TWO_PI); // i had to remove noise from this because it was tending around PI, very little around 0/TWO_PI
+    float strength=noise(position.x, position.y, -1*t);
+    PVector Force=PVector.fromAngle(angle);
+    Force.mult(strength);
+    acceleration.add(PVector.div(Force,mass));
   }
 
   void update(float t) 
@@ -55,21 +48,23 @@
     addforce(t);
     velocity.add(acceleration);
     position.add(velocity);
-    lifespan -= 2.0;
+    lifespan -= 10;
+    r /= 1.02;
+    g /= 1.02;
+    b /= 1.02;
   }
   
   void display() 
   {
-    
     noStroke();
-    fill(r,g,b,lifespan);
-    ellipse(position.x,position.y,5,5);
+    fill(r,g,b,sqrt(lifespan/255.0)*255);
+    circle(position.x,position.y,2);
   }
   
   boolean isDead() 
   {
     
-    if (lifespan < 0.0) 
+    if (lifespan < 5.0) 
     {
     
       return true;
