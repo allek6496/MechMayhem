@@ -24,7 +24,7 @@ class Robot {
     ArrayList<SparkExplosion> sparks;
     // ArrayList<Part> parts;
 
-    Robot(int size, int weaponType, float aggressiveness, int x, int y, float rotation) {
+    Robot(int size, int weaponType, int movementType, float aggressiveness, int x, int y, float rotation) {
         this.pos = new PVector(x,y);
         this.rotation = rotation; 
 
@@ -35,8 +35,6 @@ class Robot {
         this.status = 1;
 
         this.hp = 100*(1+size); // 100 for small, 200 for medium and 300 for large
-        this.speed = 6-size*0.75;
-        this.turnSpeed = 0.06*(2-size/3.0);
 
         this.wallBuffer = wallOffset + length();
 
@@ -50,6 +48,20 @@ class Robot {
             case 0: weapon = new Sawblade(this); break;
             case 1: weapon = new Laser(this); break;
             case 2: weapon = new Hammer(this); break;
+        }
+
+        switch (movementType) {
+            case 0: 
+                mP = new Tread(this);
+                this.speed = 6-size*0.75;
+                this.turnSpeed = 0.06*(2-size/3.0);
+                break;
+            case 1:
+                mP = new Wheel(this);
+                this.speed = 10-size*0.75;
+                this.turnSpeed = 0.04*(2-size/2.0);
+                break;
+            // case 2:
         }
     }
 
@@ -69,7 +81,7 @@ class Robot {
         //TODO: draw weapons and movement parts
         // could possibly add another translate to position them properly based off size, perhaps a set number of pixels from the edge
         
-        mP.animateMovement();
+        mP.draw();
         
         popMatrix();
     }

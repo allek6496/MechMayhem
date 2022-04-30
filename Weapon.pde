@@ -64,8 +64,6 @@ class Laser extends Weapon {
       trail.mult(-1);
       trail.add(pos);
 
-      println(trail);
-
       if (trail.x < 0 || trail.x > width || trail.y < 0 || trail.y > height) pulses.remove(this);
 
       line(pos.x, pos.y, trail.x, trail.y);
@@ -94,11 +92,13 @@ class Laser extends Weapon {
     pos.add(robot.pos);
 
     // ===== TURN THE LASER
+    boolean onTarget = false; // whether or not the laser is poitning at the enemy
     float d = robot.headToAng(PVector.sub(opponent.pos, pos).heading());
 
     d -= robot.rotation;
     d *= -1;
 
+    // TODO: I think there's a bug here involving multiple rotations that causes the laser to get stuck
     // turn towards the enemy iff you're not already close enough
     if (abs(d-angle) > turnSpeed) {
       // positive increases the turn, negative decreases.
@@ -114,12 +114,14 @@ class Laser extends Weapon {
       angle += dMod * turnSpeed;
 
       // bind the angle to prevent shooting backwards
-      if (angle < -1*PI/2) angle = -1*PI/2;
-      if (angle > PI/2) angle = PI/2;
+      if (angle < -1*2*PI/3) angle = -1*2*PI/3;
+      else if (angle > 2*PI/3) angle = 2*PI/3;
+    } else {
+      onTarget = true;
     }
 
     // ===== SHOOT THE LASER
-    if (cooldown == 0) {
+    if (cooldown <= 0 && onTarget) {
       cooldown = fireRate;
 
       pulses.add(new Pulse(pos.x, pos.y, angle - robot.rotation));
@@ -141,12 +143,20 @@ class Laser extends Weapon {
 
   // TODO: add some simple art in here for the laser cause it's really ugly (ik it's ugly even though i haven't started writing it yet)
   void draw() {
+    pushMatrix();
     translate(0, robot.length()/3);
+
+    pushMatrix();    
     rotate(angle);
 
     rectMode(CENTER);
     fill(200);
-    rect(0, 0, 10, 20);
+    rect(0, 6, 10, 20);
+    popMatrix();
+        
+    fill(0);
+    circle(0, 0, 8);
+    popMatrix();
   }
 }
 
@@ -228,6 +238,8 @@ class Sawblade extends Weapon {
     
     translate(0, robot.length()-10);
     rotate(rotation);
+
+    shapeMode(CENTER);
     shape(sawblade, 0, 0, size, size); // shape(shape, x, y, width, height)
 
     rotation += 0.3;

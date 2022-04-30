@@ -4,11 +4,11 @@ PShape tread1, tread2, tread3, tread4, tread5, tread6, tread7;
 PShape sawblade;
 
 void setup() {
-  loadShapesL();
+  loadShapes();
   frameRate(45);
   size(600,600);
-  robot1 = new Robot(2, 0, 0.1, 200, 200, 0);
-  robot2 = new Robot(2, 1, 0.75, 400, 400, 0);
+  robot1 = new Robot(2, 0, 1, 0.7, 200, 200, 0);
+  robot2 = new Robot(0, 1, 1, 0.3, 400, 400, 0);
 }
 
 void draw() {
@@ -24,6 +24,7 @@ void draw() {
 
     robot1.drawEffects(robot2);
     robot2.drawEffects(robot1);
+    println("R1: ", robot1.hp, "R2: ", robot2.hp);
 }
 
 void loadShapesL() {
