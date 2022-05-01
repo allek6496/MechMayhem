@@ -1,5 +1,7 @@
 import g4p_controls.*;
-//Robot basicPlayerBot;
+
+float pauseScale = 4;
+
 Robot playerBot;
 Robot robot1;
 PShape tread1, tread2, tread3, tread4, tread5, tread6, tread7;
@@ -39,8 +41,8 @@ void setup() {
  // chassis = 
   aggressiveness = aggroSlider.getValueF(); // initializing aggressiveness from the initial value of the aggressive slider.
   
-  playerBot = new Robot(chassis, weapon, movement, aggressiveness, 200, 200, 0, true); // the chassis, weapon, and movement are 0 initially
-  robot1 = new Robot(0, 1, 1, 0.3, 400, 400, 0, false);
+  playerBot = new Robot(chassis, weapon, movement, aggressiveness, 300, 300, PI/2, true); // the chassis, weapon, and movement are 0 initially
+  robot1 = new Robot(0, 1, 1, 0.3, 400, 400, 3*PI/4, false);
   
   duringGameWindow.setVisible(false);
   preGameWindow.setVisible(true);
@@ -56,30 +58,44 @@ void draw() {
 
   if (round == 0){
     preGameWindow.setVisible(true);
-    playerBot.size = chassis;
-    playerBot.weaponType = weapon;
-    playerBot.movementType = movement;
+
+    playerBot.update(null);
+
+    if (playerBot.size != chassis) playerBot.setChassis(chassis);
+    if (playerBot.weaponType != weapon) playerBot.setWeapon(weapon);
+    if (playerBot.movementType != movement) playerBot.setMovement(movement);
+
     if (start){ // if the user presses the start button, proceed to round 1.
       round++;
+      
+      // reset playerbot
+      playerBot.pos = new PVector(200, 200);
+      playerBot.rotation = 7*PI/4;
+
       preGameWindow.setVisible(false);
     }
   }
+  
   else if (round == 1){
     duringGameWindow.setVisible(true);
+
+    playerBot.aggressiveness = aggressiveness;
+
     playerBot.update(robot1);
     robot1.update(playerBot);
 
     playerBot.drawEffects(robot1);
     robot1.drawEffects(playerBot);
-    //println("R1: ", playerBot.hp, "\tR2: ", robot1.hp);
-    //println("A1: ", round(playerBot.aggressiveness*100)/100.0, "\tA2: ", round(robot1.aggressiveness*100)/100.0);
-    //println();
-    println("W:", weapon); // gives correct values, but does not seem to update. 
-    println("M:", movement);
+
+    println("R1: ", playerBot.hp, "\tR2: ", robot1.hp);
+    println("A1: ", round(playerBot.aggressiveness*100)/100.0, "\tA2: ", round(robot1.aggressiveness*100)/100.0);
+    println();
+
+    // looks good :)
     //if (robot1.hp == 0 && playerBot.hp != 0) 
     //  round += 0.5; // go to the upgrade bot gui.
-    //else
-    //  round = -1; // go to the defeat screen.
+    //else if (playerBot.hp == 0)
+    //  round = -1; // go to the defeat screen. (even if both die at the same frame, gotta survive it)
   }
   else if (round == 1.5){
     println("upgrade GUI");

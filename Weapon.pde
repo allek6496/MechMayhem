@@ -22,17 +22,17 @@ class Weapon {
   }
 
   void update(Robot opponent){ // updates the weapon
-
     // offset to the bot again (since this is called after the bot draws itself)
     pushMatrix();
     translate(robot.pos.x, robot.pos.y);
     rotate(-1*robot.rotation - PI/2);
+    if (round == 0 && robot.player) scale(pauseScale);
 
     draw();
     
     popMatrix();
     
-    checkCollision(opponent);
+    if (opponent != null) checkCollision(opponent);
   }
 
   void draw() { return; }

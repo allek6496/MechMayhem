@@ -59,43 +59,33 @@ class Robot {
         // store all the spark explosions made so far
         sparks = new ArrayList<SparkExplosion>();
 
-        mP = new MovementPart(0, this); // creates a tread for this bot TODO: multiple types
-        
-        weapons = new ArrayList<Weapon>();
-        // make the appropriate weapon (all fully levelled for testing)
-        switch (weaponType) {
-            case 0: 
-                // TODO: levelUp command or something
-                weapons.add(new Sawblade(this)); 
-                break;
-            case 1: 
-                weapons.add(new Laser(this)); 
-                break;
-            case 2: 
-                weapons.add(new Hammer(this)); 
-                break;
-        }
 
-        switch (movementType) {
-            case 0: 
-                mP = new Tread(this);
-                this.speed = 6-size*0.75;
-                this.turnSpeed = 0.06*(2-size/3.0);
-                break;
-            case 1:
-                mP = new Wheel(this);
-                this.speed = 10-size*0.75;
-                this.turnSpeed = 0.04*(2-size/2.0);
-                break;
-            case 2:
-                mP = new Legs(this);
-                this.speed = 4-size*0.75;
-                this.turnSpeed = 0.1*(2-size/2.0);
-                break;
-        }
+        setWeapon(weaponType);
+
+        setMovement(movementType);
     }
 
     void update(Robot opponent) {
+        // draw the player special in the middle of the screen when building
+        if (round == 0 && player) {
+
+            pushMatrix();
+            translate(pos.x, pos.y); // this should be 300, 300
+            scale(pauseScale);
+
+            drawBody();
+            mP.draw();
+
+            popMatrix();
+
+            pushMatrix();
+            drawEffects(opponent);
+
+            popMatrix();
+
+            return;
+        } 
+
         // TODO: some kind of check if it's player controlled or not
         if (!player && hp <= maxHP()/2.0 && !powerExhausted) {
             println("Powerup");
@@ -120,11 +110,7 @@ class Robot {
         rotate(-1*rotation + PI/2);
         scale(sizeFactor);
 
-        drawBody();
-
-        //TODO: draw weapons and movement parts
-        // could possibly add another translate to position them properly based off size, perhaps a set number of pixels from the edge
-        
+        drawBody();        
         mP.draw();
         
         popMatrix();
@@ -143,7 +129,7 @@ class Robot {
             PVector oPos = opponent.pos;
 
             // =========== CHANGE THE STATUS
-            if (random(1) < 0.1) {
+            if (random(1) < 0.1 || (player && random(1) < 0.2)) {
                 // chance to turn aggressive
                 if (random(1) < pow(aggressiveness, 6)) {
                     status = 2;
@@ -357,6 +343,55 @@ class Robot {
         sparks.add(new SparkExplosion(loc, int(random(6*sqrt(damage), 8*sqrt(damage)))));
 
         // TODO: spawn parts (based off of rolling amount of damage dealt)
+    }
+
+    void setChassis(int size) {
+        this.size = size;
+
+        setWeapon(weaponType);
+        setMovement(movementType);
+    }
+
+    // sets the weapon to a level-0 version of whichever is passed in
+    void setWeapon(int weaponType) {
+        this.weaponType = weaponType;
+
+        weapons = new ArrayList<Weapon>();
+        // make the appropriate weapon (all fully levelled for testing)
+        switch (weaponType) {
+            case 0: 
+                // TODO: levelUp command or something
+                weapons.add(new Sawblade(this)); 
+                break;
+            case 1: 
+                weapons.add(new Laser(this)); 
+                break;
+            case 2: 
+                weapons.add(new Hammer(this)); 
+                break;
+        }
+    }
+
+    void setMovement(int movementType) {
+        this.movementType = movementType;
+
+        switch (movementType) {
+            case 0: 
+                mP = new Tread(this);
+                this.speed = 6-size*0.75;
+                this.turnSpeed = 0.06*(2-size/3.0);
+                break;
+            case 1:
+                mP = new Wheel(this);
+                this.speed = 10-size*0.75;
+                this.turnSpeed = 0.04*(2-size/2.0);
+                break;
+            case 2:
+                mP = new Legs(this);
+                this.speed = 4-size*0.75;
+                this.turnSpeed = 0.1*(2-size/2.0);
+                break;
+        }
     }
 
     void upgradeChassis() {
