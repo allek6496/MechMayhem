@@ -28,6 +28,25 @@ class Weapon {
   void draw() { return; }
 
   void checkCollision(Robot opponent) { return; }
+
+  void dealDamage(Robot opponent, float damage, PVector loc) {
+    // enemy is invincible during jump
+    if (opponent.powerFrames >= 0 && opponent.size == 0) {
+      return;
+
+    // this robot deals extra damage
+    } else if (robot.powerFrames >= 0 && robot.size == 2) {
+      opponent.dealDamage(damage*2, loc);
+
+    // enemy takes 1/2 damage
+    } else if (opponent.powerFrames >= 0 && opponent.size == 2) {
+      opponent.dealDamage(damage/2.0, loc);
+
+    // no relavent powerups
+    } else {
+      opponent.dealDamage(damage, loc);
+    }
+  }
 }
 
 class Laser extends Weapon {
@@ -133,8 +152,9 @@ class Laser extends Weapon {
       Pulse pulse = pulses.get(i);
       pulse.update();
       
-      if (pulse.colliding(opponent)) {
-        opponent.dealDamage(damage, pulse.pos);
+      // if it's colliding and they're not invincible
+      if (pulse.colliding(opponent) && !(opponent.powerFrames >= 0 && opponent.size == 0)) {
+        dealDamage(opponent, damage, pulse.pos);
         pulses.remove(pulse);
       }
     }
@@ -143,6 +163,7 @@ class Laser extends Weapon {
 
   // TODO: add some simple art in here for the laser cause it's really ugly (ik it's ugly even though i haven't started writing it yet)
   void draw() {
+    noStroke();
     pushMatrix();
     translate(0, robot.length()/3);
 
@@ -180,7 +201,7 @@ class Hammer extends Weapon {
     point.add(robot.pos); // now centered on hammer
 
     if (point.dist(opponent.pos) < size/4 + opponent.radius()) {
-      opponent.dealDamage(damage, point);
+      dealDamage(opponent, damage, point);
     }
   }
 
@@ -226,7 +247,7 @@ class Sawblade extends Weapon {
     
     if (point.dist(opponent.pos) < size/1.25 + opponent.radius()) {
       point.add(PVector.sub(opponent.pos, point).setMag(size/2.5)); // point is now on the leading edge of the blade
-      opponent.dealDamage(damage, point);
+      dealDamage(opponent, damage, point);
     }
   }
 

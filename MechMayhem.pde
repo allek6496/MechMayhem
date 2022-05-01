@@ -7,8 +7,23 @@ void setup() {
   loadShapes();
   frameRate(45);
   size(600,600);
-  robot1 = new Robot(2, 0, 2, 0.7, 200, 200, 0);
-  robot2 = new Robot(0, 1, 2, 0.3, 400, 400, 0);
+  
+  /**
+  First three numbers:
+  0        | 1      | 2
+  Small    | Medium | Large
+  Sawblade | Laser  | Hammer
+  Tread    | Wheel  | Leg
+
+  4th number: default aggression
+  5th and 6th numbers: starting x and y
+
+  7th number: starting rotation 0 -> TWO_PI
+
+  Last boolean: Player? true => use setAgression() and usePower() to control, false => autonomous
+   */
+  robot1 = new Robot(2, 0, 2, 0.9, 200, 200, 0, false);
+  robot2 = new Robot(0, 1, 1, 0.3, 400, 400, 0, false);
 }
 
 void draw() {
@@ -24,7 +39,9 @@ void draw() {
 
     robot1.drawEffects(robot2);
     robot2.drawEffects(robot1);
-    println("R1: ", robot1.hp, "R2: ", robot2.hp);
+    println("R1: ", robot1.hp, "\tR2: ", robot2.hp);
+    println("A1: ", round(robot1.aggressiveness*100)/100.0, "\tA2: ", round(robot2.aggressiveness*100)/100.0);
+    println();
 }
 
 void loadShapesL() {

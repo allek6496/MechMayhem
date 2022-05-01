@@ -9,11 +9,18 @@ class Robot {
     float speed;
     float turnSpeed;
 
+    int powerFrames; // how many frames the power-up has been occuring for, -1 for inactive
+    boolean powerExhausted;
+
+    float sizeFactor; // relative how much to scale the robot by, used for the jump power-up
+    PVector targetPos;
+
     int wallBuffer;
 
     PVector pos; // center of the robot
     float rotation; // in radians, 0 == pointing right
 
+    boolean player;
     float aggressiveness; // 0 == defensive, 1 == aggressive, aggressiveness only gives chance to change aggression
     int status; // 0 == defensive, 1 == neutral, 2 == aggressive
 
@@ -24,17 +31,21 @@ class Robot {
     ArrayList<SparkExplosion> sparks;
     // ArrayList<Part> parts;
 
-    Robot(int size, int weaponType, int movementType, float aggressiveness, int x, int y, float rotation) {
+    Robot(int size, int weaponType, int movementType, float aggressiveness, int x, int y, float rotation, boolean player) {
         this.pos = new PVector(x,y);
+
         this.rotation = rotation; 
-
         this.aggressiveness = aggressiveness;
-
         this.size = size;
+        this.player = player;
 
         this.status = 1;
 
-        this.hp = 75*(2+size); // 100 for small, 200 for medium and 300 for large
+        this.powerFrames = -1;
+        this.powerExhausted = false;
+        this.sizeFactor = 1;
+
+        this.hp = maxHP(); // bigger ==> more health
 
         this.wallBuffer = wallOffset + length();
 
@@ -70,7 +81,15 @@ class Robot {
     }
 
     void update(Robot opponent) {
-        //TODO: run ai and other stuff
+        // TODO: some kind of check if it's player controlled or not
+        if (!player && hp <= maxHP()/2.0 && !powerExhausted) {
+            println("Powerup");
+            powerExhausted = true;
+
+            powerFrames = 0; // signal aiMove that the power has been activated
+        }
+
+        // run ai and other stuff
         aiMove(opponent);
 
         // draw the bot
@@ -79,6 +98,7 @@ class Robot {
         // make the bot's center 0,0 and rotate so up is forward
         translate(pos.x,pos.y);
         rotate(-1*rotation + PI/2);
+        // scale(sizeFactor);
 
         drawBody();
 
@@ -90,10 +110,16 @@ class Robot {
         popMatrix();
     }
 
-    // move based off of semi-intelligent decision making
+    // act off of semi-intelligent decision making
     void aiMove(Robot opponent) {
-        // react to the opponent        
-        if (opponent != null) {
+        // control the aggression
+        if (!player) {
+            // TODO: make this based off of what loadout it has, laser likes around 0.5, sawblade likes around 0.9, hammer idk. maybe some size/mP influence as well
+            if (aggressiveness <= 0.9) aggressiveness += 0.003;
+        }
+
+        // if we have an opponent, and we aren't currenlty performing a small or medium powerup
+        if (opponent != null && !(powerFrames >= 0 && size < 2)) { 
             PVector oPos = opponent.pos;
 
             // =========== CHANGE THE STATUS
@@ -151,7 +177,9 @@ class Robot {
             // =========== COLLISION CHECK
             // first check for a collision with the other bot
             float dist = radius() + opponent.length()*sqrt(2)/2.0 - pos.dist(oPos);
-            if (dist > 0 && size <= opponent.size) {
+
+            // if they're colliding, only move the smaller bot, unless the opponent is spinning, in which case don't move them
+            if (dist > 0 && (size <= opponent.size || (opponent.powerFrames >= 0 && opponent.size == 1))) {
                 // if it is overlapping, move it directly away from the other bot equal to the overlap
                 PVector offset = PVector.sub(pos, oPos);
                 offset.setMag(dist);
@@ -166,8 +194,75 @@ class Robot {
             if (pos.y < radius()) pos.y = radius();
             if (pos.y > height - radius()) pos.y = height - radius();
 
+        } 
+        
+        // if there is an active powerup
+        if (powerFrames >= 0) {
+            float seconds;
+
+            switch (size) {
+                // jump to the furthest corner -> 3 seconds
+                case 0:
+                    seconds = 0.5;
+                    
+                    // if this is the first frame of the power-up, decide where the target corner is
+                    if (powerFrames == 0) {
+                        // set the target as the opposite quadrant from opponent
+                        if (opponent.pos.x <= width/2) {
+                            if (opponent.pos.y <= height/2) {
+                                targetPos = new PVector(width-wallBuffer, height-wallBuffer);
+                            } else {
+                                targetPos = new PVector(width-wallBuffer, wallBuffer);
+                            }
+                        } else {
+                            if (opponent.pos.y <= height/2) {
+                                targetPos = new PVector(wallBuffer, height-wallBuffer);
+                            } else {
+                                targetPos = new PVector(wallBuffer, wallBuffer);
+                            }
+                        }
+                    } else if (powerFrames >= frameRate * seconds) powerFrames = -2; // becomes -1 (signaling no power) after following increment
+
+                    powerFrames++; 
+                    
+                    sizeFactor = 1 + sin(powerFrames * PI/(seconds*frameRate))*1.5; // get larger then back to normal over 3 seconds
+
+
+                    // move at a constant rate towards the target position
+                    pos.x += (targetPos.x - pos.x) / (seconds*frameRate - powerFrames);
+                    pos.y += (targetPos.y - pos.y) / (seconds*frameRate - powerFrames);
+
+                    rotation += 0.2;
+
+                    break;
+
+                // spin in a circle at wall turn factor
+                // TODO: experiment with increasing attack rate for the duration
+                case 1:
+                    seconds = 3;
+
+                    if (powerFrames >= frameRate * seconds) powerFrames = -1;
+                    else powerFrames++;
+
+                    rotation += turnSpeed*wallTurnFactor;
+                    break;
+
+                // all relavent logic handled elsewhere
+                case 2:
+                    // don't assume the player wants to go in for the kill, but the ai definitely does
+                    if (!player) aggressiveness = 1;
+
+                    seconds = 6;
+
+                    if (powerFrames >= frameRate * seconds) powerFrames = -1;
+                    else powerFrames++;
+
+                    break;
+            }
+        } 
+        
         // if there's no opponent just wander
-        } else {
+        if (opponent == null) {
             rotation += random(-0.2,0.2);
             pos.x += cos(-1*rotation + PI/2)*speed;
             pos.y += sin(-1*rotation + PI/2)*speed;
@@ -211,6 +306,12 @@ class Robot {
         if (size==2) fill(255, 0, 0);
 
         square(0,0, length());
+
+        // TODO: lightning bolt graphic or something like that
+        if (powerFrames >= 0) {
+            fill(200, 200, 0);
+            square(0, 0, length()/2);
+        }
     }
 
     void drawEffects(Robot opponent) {
@@ -223,6 +324,11 @@ class Robot {
 
     // Deal damage to the bot at a parcicular location (loc used for spark/part spawning)
     void dealDamage(float damage, PVector loc) {
+        // lower aggression when taking damage to make it run away and re-position
+        if (!player && aggressiveness > 0.25) {
+            aggressiveness = max(0, aggressiveness - damage/50);            
+        }
+
         this.hp -= damage;
 
         // more damage = more sparks
@@ -239,5 +345,9 @@ class Robot {
     // hitbox radius (smallest circle containing the corners)
     float radius() {
         return length()*sqrt(2)/2.0;
+    }
+
+    float maxHP() {
+        return 75*(2+size);
     }
 }
