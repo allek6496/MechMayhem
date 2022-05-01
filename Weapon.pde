@@ -3,7 +3,7 @@ class Weapon {
   int type; // 0 - saw blade, 1 - laser, 2 - hammer
   Robot robot;
   float size; // size of the weapon -- also radius of the circle dealing damage for hammer and saw
-  int damage; // how much damage the weapon does
+  float damage; // how much damage the weapon does
 
   Weapon(int type, Robot robot) {
     this.type = type;
@@ -79,7 +79,7 @@ class Laser extends Weapon {
 
   Laser(Robot robot) {
     super(1, robot);
-    this.damage = 5;
+    this.damage = 10;
     this.angle = 0;
     this.pulses = new ArrayList<Pulse>();
     this.cooldown = fireRate;
@@ -166,7 +166,7 @@ class Hammer extends Weapon {
 
   Hammer(Robot robot) {
     super (2, robot);
-    this.damage = 10;
+    this.damage = 20;
     this.anim = 0;
     this.animDir = 1;
   }
@@ -178,8 +178,6 @@ class Hammer extends Weapon {
     PVector point = new PVector(0, armLength());
     point.rotate(-1*robot.rotation - PI/2);
     point.add(robot.pos); // now centered on hammer
-    fill(0, 255, 0, 100);
-    circle(point.x, point.y, 10);
 
     if (point.dist(opponent.pos) < size/4 + opponent.radius()) {
       opponent.dealDamage(damage, point);
@@ -201,7 +199,8 @@ class Hammer extends Weapon {
     line(0, 0, 0, armLength());
     noStroke();
 
-    fill(0);
+    if (anim >= 0.9) fill(70, 50, 30);
+    else fill(0);
     rectMode(CENTER);
     rect(0, armLength(), size/1.5, size/2.5);
   }
@@ -216,7 +215,7 @@ class Sawblade extends Weapon {
 
   Sawblade(Robot robot) {
     super(0, robot);
-    this.damage = 1;
+    this.damage = 0.25;
     this.rotation = 0;
   }
 

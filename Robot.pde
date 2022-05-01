@@ -34,7 +34,7 @@ class Robot {
 
         this.status = 1;
 
-        this.hp = 100*(1+size); // 100 for small, 200 for medium and 300 for large
+        this.hp = 75*(2+size); // 100 for small, 200 for medium and 300 for large
 
         this.wallBuffer = wallOffset + length();
 
@@ -61,7 +61,11 @@ class Robot {
                 this.speed = 10-size*0.75;
                 this.turnSpeed = 0.04*(2-size/2.0);
                 break;
-            // case 2:
+            case 2:
+                mP = new Legs(this);
+                this.speed = 4-size*0.75;
+                this.turnSpeed = 0.1*(2-size/2.0);
+                break;
         }
     }
 

@@ -7,8 +7,8 @@ void setup() {
   loadShapes();
   frameRate(45);
   size(600,600);
-  robot1 = new Robot(2, 0, 1, 0.7, 200, 200, 0);
-  robot2 = new Robot(0, 1, 1, 0.3, 400, 400, 0);
+  robot1 = new Robot(2, 0, 2, 0.7, 200, 200, 0);
+  robot2 = new Robot(0, 1, 2, 0.3, 400, 400, 0);
 }
 
 void draw() {
