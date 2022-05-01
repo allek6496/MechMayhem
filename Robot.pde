@@ -88,6 +88,11 @@ class Robot {
 
             powerFrames = 0; // signal aiMove that the power has been activated
         }
+        else if (player && powerUsed && !powerExhausted){
+            powerExhausted = true;
+
+            powerFrames = 0; 
+        }
 
         // run ai and other stuff
         aiMove(opponent);

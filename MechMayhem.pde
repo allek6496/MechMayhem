@@ -1,9 +1,14 @@
+import g4p_controls.*;
 Robot robot1;
 Robot robot2;
 PShape tread1, tread2, tread3, tread4, tread5, tread6, tread7;
 PShape sawblade;
+float aggressiveness;
+boolean powerUsed;
+PImage guiBackground;
 
 void setup() {
+  createGUI();
   loadShapes();
   frameRate(45);
   size(600,600);
@@ -22,8 +27,12 @@ void setup() {
 
   Last boolean: Player? true => use setAgression() and usePower() to control, false => autonomous
    */
-  robot1 = new Robot(2, 0, 2, 0.9, 200, 200, 0, false);
+  robot1 = new Robot(2, 0, 2, 0.9, 200, 200, 0, true);
   robot2 = new Robot(0, 1, 1, 0.3, 400, 400, 0, false);
+  
+  aggressiveness = aggroSlider.getValueF(); // initializing aggressiveness from the initial value of the aggressive slider.
+  
+  duringGameWindow.setVisible(true);
 }
 
 void draw() {
@@ -53,6 +62,7 @@ void loadShapesL() {
   tread6  = loadShape("Movement/treads/tread6.svg");
   tread7  = loadShape("Movement/treads/tread7.svg");
   sawblade = loadShape("Weapon/SawBlade/sawblade1.svg");
+  guiBackground = loadImage("guiBackground.jpg");
 }
 
 void loadShapes(){ // loads all shapes for weapon and movementPart Classes
@@ -64,4 +74,5 @@ void loadShapes(){ // loads all shapes for weapon and movementPart Classes
   tread6 = loadShape("Movement\\treads\\tread6.svg");
   tread7 = loadShape("Movement\\treads\\tread7.svg");
   sawblade = loadShape("Weapon\\SawBlade\\sawblade1.svg");
+  guiBackground = loadImage("guiBackground.jpg");
 }
