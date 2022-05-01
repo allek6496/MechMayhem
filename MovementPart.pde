@@ -41,6 +41,15 @@ class Legs extends MovementPart {
     legWidth = 4 + size*4;
   }
 
+  Legs(int level, Robot robot) {
+    this(robot);
+
+    if (level == 1) {
+      legWidth += 2 + size*3;
+      legLength += 3  + size*3;
+    }
+  }
+
   void draw() {
     // front right
     drawLeg(robot.length()/2, robot.length()/2 - robot.size, 0, -1*PI/2);
@@ -113,6 +122,15 @@ class Wheel extends MovementPart {
     wheelLength = robot.length()/3;
   }
 
+  Wheel(int level, Robot robot) {
+    this(robot);
+
+    if (level == 1) {
+      wheelWidth += 2 + size;
+      wheelLength += robot.length()/9;
+    }
+  }
+
   void draw() {
     fill(25);
 
@@ -161,6 +179,12 @@ class Tread extends MovementPart {
     shapeIndex = 0;
   }
 
+  Tread(int level, Robot robot) {
+    this(robot);
+
+    if (level == 1) size += 1;
+  }
+
   void draw() {
     PShape[] shapes = {tread1, tread2, tread3, tread4, tread5, tread6, tread7};
     shapeMode(CENTER);
@@ -194,6 +218,4 @@ class Tread extends MovementPart {
        break;
     }
   }
-
-
 }

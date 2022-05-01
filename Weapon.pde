@@ -2,13 +2,23 @@
 class Weapon {
   int type; // 0 - saw blade, 1 - laser, 2 - hammer
   Robot robot;
-  float size; // size of the weapon -- also radius of the circle dealing damage for hammer and saw
+  float size; // size of the weapon -- also (diameter) of the circle dealing damage for hammer and saw
   float damage; // how much damage the weapon does
+  int level;
 
-  Weapon(int type, Robot robot) {
+  PVector attachPoint;
+
+  Weapon(int type, int level, Robot robot) {
     this.type = type;
+    this.level = level;
     this.robot = robot;
+
     this.size = robot.length()-10;
+  }
+
+  Weapon(int type, int level, PVector attachPoint, Robot robot) {
+    this(type, level, robot);
+    this.attachPoint = attachPoint;
   }
 
   void update(Robot opponent){ // updates the weapon
@@ -29,6 +39,15 @@ class Weapon {
 
   void checkCollision(Robot opponent) { return; }
 
+  // gets the screen position of the weapon's base, only really used for laser but it's generalizable so it's here instead
+  PVector getPos() {
+    PVector pos = new PVector(attachPoint.x, attachPoint.y);
+    pos.rotate(-1*robot.rotation - PI/2);
+    pos.add(robot.pos);
+    return pos;
+  }
+
+  // attempts to deal damage to the opponent
   void dealDamage(Robot opponent, float damage, PVector loc) {
     // enemy is invincible during jump
     if (opponent.powerFrames >= 0 && opponent.size == 0) {
@@ -46,6 +65,11 @@ class Weapon {
     } else {
       opponent.dealDamage(damage, loc);
     }
+
+    // when it's getting damage in increase aggression
+    if (!robot.player) {
+      robot.aggressiveness = min(1, robot.aggressiveness + 0.03);
+    }
   }
 }
 
@@ -54,6 +78,7 @@ class Laser extends Weapon {
   int fireRate = 25;
 
   float angle; // 0 is straight ahead, varies in [-PI/2, PI/2]
+  float angleCenter; // 0 straight ahead, only different for back laser, where this is equal to PI
   int cooldown;
 
   ArrayList<Pulse> pulses;
@@ -97,18 +122,37 @@ class Laser extends Weapon {
   } 
 
   Laser(Robot robot) {
-    super(1, robot);
+    super(1, 0, new PVector(0, 0, robot.length()/3), robot);
     this.damage = 10;
     this.angle = 0;
+    this.angleCenter = 0;
     this.pulses = new ArrayList<Pulse>();
     this.cooldown = fireRate;
   }
 
+  Laser(int level, int i, Robot robot) {
+    this(robot);
+
+    // if it's upgraded, position based off of level
+    if (level > 0) {
+      switch (i) {
+        case 1:
+          attachPoint = new PVector(-1*robot.length()/4, robot.length()/3);
+          break;
+        case 2:
+          attachPoint = new PVector(robot.length()/4, robot.length()/3);
+          break;
+        case 3:
+          attachPoint = new PVector(0, -1*robot.length()/3);
+          angleCenter = PI;
+          break;
+      }
+    }
+  }
+
   void checkCollision(Robot opponent) {
     // position of the laser
-    PVector pos = new PVector(0, robot.length()/3);
-    pos.rotate(-1*robot.rotation - PI/2);
-    pos.add(robot.pos);
+    PVector pos = getPos();
 
     // ===== TURN THE LASER
     boolean onTarget = false; // whether or not the laser is poitning at the enemy
@@ -132,9 +176,9 @@ class Laser extends Weapon {
       // turn the robot by the modifier, and keep it bound to TWO_PI radians
       angle += dMod * turnSpeed;
 
-      // bind the angle to prevent shooting backwards
-      if (angle < -1*2*PI/3) angle = -1*2*PI/3;
-      else if (angle > 2*PI/3) angle = 2*PI/3;
+      // bind the angle to prevent shooting backwards (from where it's pointed towards)
+      if (angle < angleCenter - 2*PI/3) angle = angleCenter - 2*PI/3;
+      else if (angle > angleCenter + 2*PI/3) angle = angleCenter + 2*PI/3;
     } else {
       onTarget = true;
     }
@@ -165,15 +209,13 @@ class Laser extends Weapon {
   void draw() {
     noStroke();
     pushMatrix();
-    translate(0, robot.length()/3);
+    translate(attachPoint.x, attachPoint.y);
 
-    pushMatrix();    
     rotate(angle);
 
-    rectMode(CENTER);
     fill(200);
+    rectMode(CENTER);
     rect(0, 6, 10, 20);
-    popMatrix();
         
     fill(0);
     circle(0, 0, 8);
@@ -184,12 +226,24 @@ class Laser extends Weapon {
 class Hammer extends Weapon {
   float anim; // how far through the animation is it 0 -> 1 -> 0 ...
   float animDir; // 1 => descending, -1 => raising
+  float length;
 
   Hammer(Robot robot) {
-    super (2, robot);
+    super (2, 0, new PVector(0, 0), robot);
     this.damage = 20;
     this.anim = 0;
     this.animDir = 1;
+    this.length = size;
+  }
+
+  Hammer(int level, Robot robot) {
+    this(robot);
+
+    if (level >= 1) animDir = 2; // 2x pound speed
+    if (level == 2) {
+      size *= 1.5;
+      length *= 1.2;
+    }
   }
 
   void checkCollision(Robot opponent) {
@@ -208,12 +262,14 @@ class Hammer extends Weapon {
   void draw() {
     anim += 0.1*animDir;
     if (anim >= 1) {
-      animDir = -1;
+      animDir *= -1;
       anim = 1;
     } else if (anim <= 0) {
-      animDir = 1;
+      animDir *= -1;
       anim = 0;
     }
+
+    pushMatrix();
 
     strokeWeight(10);
     stroke(0);
@@ -224,20 +280,51 @@ class Hammer extends Weapon {
     else fill(0);
     rectMode(CENTER);
     rect(0, armLength(), size/1.5, size/2.5);
+    popMatrix();
   }
 
   int armLength() {
-    return int(size * cos(-PI + anim*PI) * 1.5); 
+    return int(length * cos(-PI + anim*PI) * 1.5); 
   }
 }
 
 class Sawblade extends Weapon {
+  float lv0Damage = 0.25;
+  float lv1Damage = 0.35;
+
+  float bladeAngle;
   float rotation;
+  float length;
 
   Sawblade(Robot robot) {
-    super(0, robot);
-    this.damage = 0.25;
+    super(0, 0, robot);
+    this.damage = lv0Damage;
     this.rotation = 0;
+    this.bladeAngle = 0;
+    length = size;
+  }
+
+  // at level 2, +1 sawblade, so i in {1, 2} tells whether it's first (left) or second (right)
+  Sawblade(int level, int i, Robot robot) {
+    super(0, level, robot);
+    this.rotation = 0;
+
+    if (level == 2) {
+      this.damage = lv1Damage;
+      this.length = size + level*10;
+      // front left
+      if (i == 1) {
+        this.bladeAngle = -1*PI/7;
+      } else {
+        this.bladeAngle = PI/7;
+      }
+    } else {
+      this.damage = lv0Damage;
+      this.length = size;
+      this.bladeAngle = 0;
+
+      if (level == 1) this.damage = lv1Damage;
+    }
   }
 
   void checkCollision(Robot opponent) {
@@ -253,15 +340,27 @@ class Sawblade extends Weapon {
 
   // draw weapon and progress animation
   void draw() {
+    pushMatrix();
+    rotate(bladeAngle);
+
     fill(200);
-    rect(0, robot.length()/2+10, 13 + 2*robot.size, robot.length()-20);
-    
-    translate(0, robot.length()-10);
+    noStroke();
+    rectMode(CORNERS);
+    rect(-6-robot.size, 10, 6+robot.size, length+10);
+
+    // circle to cover the bare ends
+    if (level == 2) {
+      fill(50);
+      circle(0, 0, 30);
+    }
+
+    translate(0, length);
     rotate(rotation);
 
     shapeMode(CENTER);
     shape(sawblade, 0, 0, size, size); // shape(shape, x, y, width, height)
 
     rotation += 0.3;
+    popMatrix();
   }
 }

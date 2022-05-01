@@ -33,13 +33,13 @@ void setup() {
 
   7th number: starting rotation 0 -> TWO_PI
 
-  Last boolean: Player? true => use setAgression() and usePower() to control, false => autonomous
+  Last boolean: Player? true => use setAgression(float) and usePower() to control, false => autonomous
    */
   
  // chassis = 
   aggressiveness = aggroSlider.getValueF(); // initializing aggressiveness from the initial value of the aggressive slider.
   
-  playerBot = new Robot(chassis, weapon, movement, 0.9, 200, 200, 0, true); // the chassis, weapon, and movement are 0 initially
+  playerBot = new Robot(chassis, weapon, movement, aggressiveness, 200, 200, 0, true); // the chassis, weapon, and movement are 0 initially
   robot1 = new Robot(0, 1, 1, 0.3, 400, 400, 0, false);
   
   duringGameWindow.setVisible(false);

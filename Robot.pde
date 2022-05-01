@@ -11,6 +11,7 @@ class Robot {
     float hp; 
     float speed;
     float turnSpeed;
+    int chassisLevel;
 
     int powerFrames; // how many frames the power-up has been occuring for, -1 for inactive
     boolean powerExhausted;
@@ -28,7 +29,7 @@ class Robot {
     int status; // 0 == defensive, 1 == neutral, 2 == aggressive
 
     MovementPart mP;
-    Weapon weapon;
+    ArrayList<Weapon> weapons;
 
     // TODO: build part/spark classes
     ArrayList<SparkExplosion> sparks;
@@ -60,11 +61,19 @@ class Robot {
 
         mP = new MovementPart(0, this); // creates a tread for this bot TODO: multiple types
         
-        // make the appropriate weapon
+        weapons = new ArrayList<Weapon>();
+        // make the appropriate weapon (all fully levelled for testing)
         switch (weaponType) {
-            case 0: weapon = new Sawblade(this); break;
-            case 1: weapon = new Laser(this); break;
-            case 2: weapon = new Hammer(this); break;
+            case 0: 
+                // TODO: levelUp command or something
+                weapons.add(new Sawblade(this)); 
+                break;
+            case 1: 
+                weapons.add(new Laser(this)); 
+                break;
+            case 2: 
+                weapons.add(new Hammer(this)); 
+                break;
         }
 
         switch (movementType) {
@@ -109,7 +118,7 @@ class Robot {
         // make the bot's center 0,0 and rotate so up is forward
         translate(pos.x,pos.y);
         rotate(-1*rotation + PI/2);
-        // scale(sizeFactor);
+        scale(sizeFactor);
 
         drawBody();
 
@@ -126,7 +135,7 @@ class Robot {
         // control the aggression
         if (!player) {
             // TODO: make this based off of what loadout it has, laser likes around 0.5, sawblade likes around 0.9, hammer idk. maybe some size/mP influence as well
-            if (aggressiveness <= 0.9) aggressiveness += 0.003;
+            if (aggressiveness <= 0.9) aggressiveness += 0.003 * (size + 1)/2.0;
         }
 
         // if we have an opponent, and we aren't currenlty performing a small or medium powerup
@@ -236,7 +245,7 @@ class Robot {
 
                     powerFrames++; 
                     
-                    sizeFactor = 1 + sin(powerFrames * PI/(seconds*frameRate))*1.5; // get larger then back to normal over 3 seconds
+                    sizeFactor = 1 + sin(powerFrames * PI/(seconds*frameRate))*0.6; // get larger then back to normal over 3 seconds
 
 
                     // move at a constant rate towards the target position
@@ -326,7 +335,9 @@ class Robot {
     }
 
     void drawEffects(Robot opponent) {
-        weapon.update(opponent);
+        for (Weapon weapon : weapons) {
+            weapon.update(opponent);
+        }
 
         for (SparkExplosion spark : sparks) {
             spark.run(frameCount/100.0);
@@ -348,6 +359,87 @@ class Robot {
         // TODO: spawn parts (based off of rolling amount of damage dealt)
     }
 
+    void upgradeChassis() {
+        if (chassisLevel == 0) {
+            chassisLevel = 1;
+
+            hp = maxHP(); // small +150, medium +300, large +450. why? not a clue, it probably needs balancing lmao
+        }
+    }
+
+    void upgradeWeapon() {
+        if (weapons.get(0) instanceof Sawblade) {
+            switch(weapons.get(0).level) {
+                case 0: 
+                    weapons.remove(0);
+                    weapons.add(new Sawblade(1, 1, this));
+                    break;
+                case 1:
+                    weapons.remove(0);
+                    weapons.add(new Sawblade(2, 1, this));
+                    weapons.add(new Sawblade(2, 2, this));
+                    break;
+            }
+        }
+
+        if (weapons.get(0) instanceof Laser) {
+            switch(weapons.get(0).level) {
+                case 0:
+                    weapons.remove(0);
+                    weapons.add(new Laser(1, 1, this)); 
+                    weapons.add(new Laser(1, 2, this));
+                    break;
+                case 1:
+                    weapons = new ArrayList<Weapon>();
+                    weapons.add(new Laser(2, 1, this)); 
+                    weapons.add(new Laser(2, 2, this));
+                    weapons.add(new Laser(2, 3, this));
+                    break;
+            }
+        }
+
+        if (weapons.get(0) instanceof Hammer) {
+            switch(weapons.get(0).level) {
+                case 0:
+                    weapons.remove(0);
+                    weapons.add(new Hammer(1, this));
+                    break;
+                case 1:
+                    weapons.remove(0);
+                    weapons.add(new Hammer(2, this));
+                    break;
+            }
+        }
+    }
+
+    void upgradeMovement() {
+        if (mP instanceof Tread) {
+            mP = new Tread(1, this);
+            this.speed = 9-size*0.75;
+            this.turnSpeed = 0.08*(2-size/3.0);
+        }
+
+        if (mP instanceof Wheel) {
+            mP = new Wheel(1, this);
+            this.speed = 12-size*0.75;
+            this.turnSpeed = 0.06*(2-size/2.0);    
+        }
+        
+        if (mP instanceof Legs) {
+            mP = new Legs(1, this);
+            this.speed = 7-size*0.75;
+            this.turnSpeed = 0.12*(2-size/2.0);   
+        }
+    }
+
+    void usePower() {
+        powerFrames = 0;
+    }
+
+    void setAgression(float aggression) {
+        this.aggressiveness = aggression;
+    }
+
     // side length
     int length() {
         return 12*(size+4);
@@ -359,6 +451,6 @@ class Robot {
     }
 
     float maxHP() {
-        return 75*(2+size);
+        return 75*(2+size) + 150*(chassisLevel+size);
     }
 }
