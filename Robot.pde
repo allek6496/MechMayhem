@@ -2,6 +2,9 @@ class Robot {
     // ----- Global settings
     int wallOffset = 30; // how many pixels before each bot starts turning away from the wall (larger turns sooner)
     float wallTurnFactor = 2; // how strongly it turns away from the wall
+    
+    int weaponType;
+    int movementType;
 
     // ----- Local variables
     int size; // 0-small 1-medium 2-large
@@ -40,6 +43,9 @@ class Robot {
         this.player = player;
 
         this.status = 1;
+        
+        this.weaponType = weaponType;
+        this.movementType = movementType;
 
         this.powerFrames = -1;
         this.powerExhausted = false;

@@ -17,7 +17,7 @@
 synchronized public void drawDuringGameWindow(PApplet appc, GWinData data) { //_CODE_:duringGameWindow:769630:
   appc.background(230);
   //appc.background(guiBackground); // has to have the same size as application
-  // IDEA: maybe have bunch of "theme" photos that everyGUI has?
+  // IDEA: maybe have bunch of "theme" photos that every GUI has?
 } //_CODE_:duringGameWindow:769630:
 
 public void powerButtonClicked(GButton source, GEvent event) { //_CODE_:powerButton:594449:
@@ -27,6 +27,41 @@ public void powerButtonClicked(GButton source, GEvent event) { //_CODE_:powerBut
 public void agroSliderChanged(GCustomSlider source, GEvent event) { //_CODE_:aggroSlider:296709:
   aggressiveness = aggroSlider.getValueF();
 } //_CODE_:aggroSlider:296709:
+
+synchronized public void drawpreGameWindow(PApplet appc, GWinData data) { //_CODE_:preGameWindow:325301:
+  appc.background(230);
+} //_CODE_:preGameWindow:325301:
+
+public void chassisChosen(GDropList source, GEvent event) { //_CODE_:chassisChoice:730452:
+  if (chassisChoice.getSelectedIndex() == 0) // if the user picks a small chassis.
+    chassis = 0;
+  else if (chassisChoice.getSelectedIndex() == 1)
+    chassis = 1;
+  else if (chassisChoice.getSelectedIndex() == 2)
+    chassis = 2;
+} //_CODE_:chassisChoice:730452:
+
+public void weaponChosen(GDropList source, GEvent event) { //_CODE_:weaponChoice:239023:
+  if (weaponChoice.getSelectedIndex() == 0) // if the user picks a small chassis.
+    weapon = 0;
+  else if (weaponChoice.getSelectedIndex() == 1)
+    weapon = 1;
+  else if (weaponChoice.getSelectedIndex() == 2)
+    weapon = 2;
+} //_CODE_:weaponChoice:239023:
+
+public void movementChosen(GDropList source, GEvent event) { //_CODE_:movementChoice:257625:
+  if (movementChoice.getSelectedIndex() == 0) // if the user picks a small chassis.
+    movement = 0;
+  else if (movementChoice.getSelectedIndex() == 1)
+    movement = 1;
+  else if (movementChoice.getSelectedIndex() == 2)
+    movement = 2;
+} //_CODE_:movementChoice:257625:
+
+public void startButtonClicked(GButton source, GEvent event) { //_CODE_:startButton:442583:
+  start = true;
+} //_CODE_:startButton:442583:
 
 
 
@@ -39,7 +74,7 @@ public void createGUI(){
   surface.setTitle("Sketch Window");
   duringGameWindow = GWindow.getWindow(this, "Window title", 0, 0, 400, 120, JAVA2D);
   duringGameWindow.noLoop();
-  duringGameWindow.setActionOnClose(G4P.CLOSE_WINDOW);
+  duringGameWindow.setActionOnClose(G4P.KEEP_OPEN);
   duringGameWindow.addDrawHandler(this, "drawDuringGameWindow");
   powerButton = new GButton(duringGameWindow, 120, 80, 80, 30);
   powerButton.setText("POWER");
@@ -60,7 +95,29 @@ public void createGUI(){
   aggroSlider.setLocalColorScheme(GCScheme.GOLD_SCHEME);
   aggroSlider.setOpaque(false);
   aggroSlider.addEventHandler(this, "agroSliderChanged");
+  preGameWindow = GWindow.getWindow(this, "Customize your bot", 0, 0, 550, 400, JAVA2D);
+  preGameWindow.noLoop();
+  preGameWindow.setActionOnClose(G4P.KEEP_OPEN);
+  preGameWindow.addDrawHandler(this, "drawpreGameWindow");
+  chassisChoice = new GDropList(preGameWindow, 10, 20, 150, 120, 3, 10);
+  chassisChoice.setItems(loadStrings("list_730452"), 0);
+  chassisChoice.setLocalColorScheme(GCScheme.GOLD_SCHEME);
+  chassisChoice.addEventHandler(this, "chassisChosen");
+  togGroup1 = new GToggleGroup();
+  weaponChoice = new GDropList(preGameWindow, 180, 20, 140, 120, 3, 10);
+  weaponChoice.setItems(loadStrings("list_239023"), 0);
+  weaponChoice.setLocalColorScheme(GCScheme.GOLD_SCHEME);
+  weaponChoice.addEventHandler(this, "weaponChosen");
+  movementChoice = new GDropList(preGameWindow, 360, 20, 150, 120, 3, 10);
+  movementChoice.setItems(loadStrings("list_257625"), 0);
+  movementChoice.setLocalColorScheme(GCScheme.GOLD_SCHEME);
+  movementChoice.addEventHandler(this, "movementChosen");
+  startButton = new GButton(preGameWindow, 240, 330, 90, 40);
+  startButton.setText("START");
+  startButton.setLocalColorScheme(GCScheme.GOLD_SCHEME);
+  startButton.addEventHandler(this, "startButtonClicked");
   duringGameWindow.loop();
+  preGameWindow.loop();
 }
 
 // Variable declarations 
@@ -69,3 +126,9 @@ GWindow duringGameWindow;
 GButton powerButton; 
 GLabel aggroLabel; 
 GCustomSlider aggroSlider; 
+GWindow preGameWindow;
+GDropList chassisChoice; 
+GToggleGroup togGroup1; 
+GDropList weaponChoice; 
+GDropList movementChoice; 
+GButton startButton; 
