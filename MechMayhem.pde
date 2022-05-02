@@ -1,4 +1,7 @@
 import g4p_controls.*;
+//import java.awt.Frame;
+//import processing.awt.PSurfaceAWT;
+//import processing.awt.PSurfaceAWT.SmoothCanvas;
 
 float pauseScale = 4;
 
@@ -18,7 +21,8 @@ int weapon;
 int movement;
 
 void setup() {
-  size(600,600);
+  fullScreen();
+  //size(600,600);
   frameRate(45);
   createGUI();
   loadShapes();
@@ -41,11 +45,13 @@ void setup() {
  // chassis = 
   aggressiveness = aggroSlider.getValueF(); // initializing aggressiveness from the initial value of the aggressive slider.
   
-  playerBot = new Robot(chassis, weapon, movement, aggressiveness, 300, 300, PI/2, true); // the chassis, weapon, and movement are 0 initially
-  robot1 = new Robot(0, 1, 1, 0.3, 400, 400, 3*PI/4, false);
+  playerBot = new Robot(chassis, weapon, movement, aggressiveness, width/2, height/2, PI/2, true); // the chassis, weapon, and movement are 0 initially
+  robot1 = new Robot(0, 2, 0, 0.3, 400, 400, 3*PI/4, false);
   
-  duringGameWindow.setVisible(false);
   preGameWindow.setVisible(true);
+  duringGameWindow.setVisible(false);
+  postGameWindow.setVisible(false);
+  
 }
 
 void draw() {
@@ -66,13 +72,11 @@ void draw() {
     if (playerBot.movementType != movement) playerBot.setMovement(movement);
 
     if (start){ // if the user presses the start button, proceed to round 1.
-      round++;
+      round++;      
       
-      // reset playerbot
-      playerBot.pos = new PVector(200, 200);
-      playerBot.rotation = 7*PI/4;
+    preGameWindow.setVisible(false);
 
-      preGameWindow.setVisible(false);
+      //reset(preGameWindow);
     }
   }
   
@@ -92,14 +96,33 @@ void draw() {
     println();
 
     // looks good :)
-    //if (robot1.hp == 0 && playerBot.hp != 0) 
-    //  round += 0.5; // go to the upgrade bot gui.
-    //else if (playerBot.hp == 0)
-    //  round = -1; // go to the defeat screen. (even if both die at the same frame, gotta survive it)
+    if (robot1.hp == 0 && playerBot.hp != 0){
+      round += 0.5; // go to the upgrade bot gui.
+      println("Win");
+      duringGameWindow.setVisible(false);
+    }
+    else if (playerBot.hp == 0)
+      round = -1; // go to the defeat screen. (even if both die at the same frame, gotta survive it)
   }
   else if (round == 1.5){
-    println("upgrade GUI");
-    // TODO: upgrade GUI. 
+    postGameWindow.setVisible(true);
+    playerBot.aggressiveness = 0.5;
+    playerBot.pos.x = width/2;
+    playerBot.pos.y = height/2;
+    playerBot.rotation = PI/2;    
+    playerBot.update(null);
+
+    if (start){ // if the user presses the next round button, proceed to round 2.
+      round += 0.5;
+
+
+      postGameWindow.setVisible(false);
+      //reset(postGameWindow);
+    }
+  }
+  
+  else if (round == -1){
+    println("DEFEAT SCREEN");
   }
 }
 
@@ -126,3 +149,23 @@ void loadShapes(){ // loads all shapes for weapon and movementPart Classes
   sawblade = loadShape("Weapon\\SawBlade\\sawblade1.svg");
   guiBackground = loadImage("guiBackground.jpg");
 }
+
+void reset(GWindow... windows){ // ... neccessary? No. Purpose: to reset the stats and position and rotation of the playerbot while popping up appropriate windows.
+  for (GWindow window : windows)
+    window.setVisible(false);
+   
+  // reset playerbot.
+  playerBot.pos = new PVector(200, 200);
+  playerBot.rotation = 7*PI/4;
+  start = false;
+  powerUsed = false;
+}
+
+//PSurface initSurface() { // implemented this feature so that the windows did not have an annoying top bar. Does not work as it throws an Illegal Exception. 
+//  PSurface pSurface = super.initSurface();
+//  PSurfaceAWT awtSurface = (PSurfaceAWT) surface;
+//  SmoothCanvas smoothCanvas = (SmoothCanvas) awtSurface.getNative();
+//  Frame frame = smoothCanvas.getFrame();
+//  frame.setUndecorated(true);
+//  return pSurface;
+//}

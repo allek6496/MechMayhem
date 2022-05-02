@@ -63,6 +63,23 @@ public void startButtonClicked(GButton source, GEvent event) { //_CODE_:startBut
   start = true;
 } //_CODE_:startButton:442583:
 
+synchronized public void drawpostGameWindow(PApplet appc, GWinData data) { //_CODE_:postGameWindow:595249:
+  appc.background(230);
+} //_CODE_:postGameWindow:595249:
+
+public void upgradeChosen(GDropList source, GEvent event) { //_CODE_:upgradeChoice:315672:
+  if (upgradeChoice.getSelectedText().equals("Chassis"))
+    playerBot.upgradeChassis();
+  else if (upgradeChoice.getSelectedText().equals("Weapon"))
+    playerBot.upgradeWeapon();
+  else if (upgradeChoice.getSelectedText().equals("Movement"))
+    playerBot.upgradeMovement();
+} //_CODE_:upgradeChoice:315672:
+
+public void nextRoundButtonClicked(GButton source, GEvent event) { //_CODE_:nextRoundButton:347340:
+  start = true;
+} //_CODE_:nextRoundButton:347340:
+
 
 
 // Create all the GUI controls. 
@@ -116,8 +133,21 @@ public void createGUI(){
   startButton.setText("START");
   startButton.setLocalColorScheme(GCScheme.GOLD_SCHEME);
   startButton.addEventHandler(this, "startButtonClicked");
+  postGameWindow = GWindow.getWindow(this, "Upgrade", 0, 0, 240, 240, JAVA2D);
+  postGameWindow.noLoop();
+  postGameWindow.setActionOnClose(G4P.KEEP_OPEN);
+  postGameWindow.addDrawHandler(this, "drawpostGameWindow");
+  upgradeChoice = new GDropList(postGameWindow, 44, 11, 141, 104, 3, 10);
+  upgradeChoice.setItems(loadStrings("list_315672"), 0);
+  upgradeChoice.setLocalColorScheme(GCScheme.RED_SCHEME);
+  upgradeChoice.addEventHandler(this, "upgradeChosen");
+  nextRoundButton = new GButton(postGameWindow, 61, 161, 96, 43);
+  nextRoundButton.setText("Next Round");
+  nextRoundButton.setLocalColorScheme(GCScheme.RED_SCHEME);
+  nextRoundButton.addEventHandler(this, "nextRoundButtonClicked");
   duringGameWindow.loop();
   preGameWindow.loop();
+  postGameWindow.loop();
 }
 
 // Variable declarations 
@@ -132,3 +162,6 @@ GToggleGroup togGroup1;
 GDropList weaponChoice; 
 GDropList movementChoice; 
 GButton startButton; 
+GWindow postGameWindow;
+GDropList upgradeChoice; 
+GButton nextRoundButton; 
