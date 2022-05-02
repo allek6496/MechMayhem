@@ -29,6 +29,10 @@ class Legs extends MovementPart {
   int legLength;
   int legWidth;
 
+  // death anim variables
+  float legOffset;
+  float legRotation;
+
   float legRange = PI/3; // how far the legs can rotate
 
   Legs(Robot robot) {
@@ -37,8 +41,11 @@ class Legs extends MovementPart {
     anim = 0;
     legDir = 1;
 
+    this.legOffset = 0;
+    this.legRotation = 0;
+
     legLength = 10 + size*4;
-    legWidth = 4 + size*4;
+    legWidth = 6 + size*4;
   }
 
   Legs(int level, Robot robot) {
@@ -51,22 +58,59 @@ class Legs extends MovementPart {
   }
 
   void draw() {
-    // front right
-    drawLeg(robot.length()/2, robot.length()/2 - robot.size, 0, -1*PI/2);
+    float deathProg = (robot.deathAnimLength - robot.deathFrames)/float(robot.deathAnimLength);
+    if (robot.hp <= 0) {
+      legRotation += 0.06*deathProg;
+      legOffset += 2*deathProg;
+    }
 
-    // front left
-    drawLeg(-1*robot.length()/2, robot.length()/2 - 2 - robot.size, PI/8, -1*3*PI/2);
+    // front left wheel
+    pushMatrix();
+    translate((robot.length()/2 + legOffset), robot.length()/2 - robot.size*2 -4 + legOffset/3);
+    rotate(legRotation);
+    drawLeg(0, 0, 0, -1*PI/2);
 
-    // back right
-    drawLeg(robot.length()/2, -1*robot.length()/2 + 2 + robot.size, PI/4, -1*PI/2);
+    popMatrix();
 
-    // back left
-    drawLeg(-1*robot.length()/2, -1*robot.length()/2 + 2 + robot.size, 3*PI/8, -1*3*PI/2);
+    // front right wheel
+    pushMatrix();
+    translate(-1*(robot.length()/2 + legOffset), robot.length()/2 - robot.size*2 -4 + legOffset/3);
+    rotate(legRotation);
+    drawLeg(0, 0, PI/8, -1*3*PI/2);
 
-    anim += 0.05*legDir;
+    popMatrix();
+
+    // back left wheel
+    pushMatrix();
+    translate((robot.length()/2 + legOffset), -1*robot.length()/2 + robot.size*2 +4 - legOffset/3);
+    rotate(-legRotation);
+    drawLeg(0, 0, PI/4, -1*PI/2);
+
+    popMatrix();
+
+    // back right wheel
+    pushMatrix();
+    translate(-1*(robot.length()/2 + legOffset), -1*robot.length()/2 + robot.size*2 +4 - legOffset/3);
+    rotate(-legRotation);
+    drawLeg(0, 0, 3*PI/8, -1*3*PI/2);
+    popMatrix();
+
+    // // front right
+    // drawLeg(robot.length()/2, robot.length()/2 - robot.size, 0, -1*PI/2);
+
+    // // front left
+    // drawLeg(-1*robot.length()/2, robot.length()/2 - 2 - robot.size, PI/8, -1*3*PI/2);
+
+    // // back right
+    // drawLeg(robot.length()/2, -1*robot.length()/2 + 2 + robot.size, PI/4, -1*PI/2);
+
+    // // back left
+    // drawLeg(-1*robot.length()/2, -1*robot.length()/2 + 2 + robot.size, 3*PI/8, -1*3*PI/2);
+
+    anim += 0.05*legDir*deathProg;
 
     if (anim > 1) {
-      legDir = -1;
+      if (robot.hp > 0 || robot.deathFrames < 15) legDir = -1;
       anim = 1;
     } else if (anim < 0) {
       legDir = 1;
@@ -114,12 +158,18 @@ class Wheel extends MovementPart {
   int wheelWidth;
   int wheelLength;
 
+  float wheelRotation;
+  float wheelOffset;
+
   Wheel(Robot robot) {
     super (1, robot);
-    anim = 0;
+    this.anim = 0;
 
-    wheelWidth = 8 + size*2;
-    wheelLength = robot.length()/3;
+    this.wheelRotation = 0;
+    this.wheelOffset = 0;
+
+    this.wheelWidth = 8 + size*2;
+    this.wheelLength = robot.length()/3;
   }
 
   Wheel(int level, Robot robot) {
@@ -132,16 +182,44 @@ class Wheel extends MovementPart {
   }
 
   void draw() {
+    if (robot.hp <= 0) {
+      float deathProg = (robot.deathAnimLength - robot.deathFrames)/float(robot.deathAnimLength);
+      wheelRotation += 0.06*deathProg;
+      wheelOffset += 2*deathProg;
+    }
+
     fill(25);
 
     // front left wheel
-    drawWheel(-1*robot.length()/2 - wheelWidth/2, robot.length()/4);
+    pushMatrix();
+    rotate(wheelRotation);
+    translate(-1*robot.length()/2 - wheelWidth/2 - wheelOffset, robot.length()/4 + wheelOffset/3);
+    drawWheel(0, 0);
+
+    popMatrix();
+
     // front right wheel
-    drawWheel(robot.length()/2 + wheelWidth/2, robot.length()/4);
+    pushMatrix();
+    rotate(wheelRotation);
+    translate(robot.length()/2 + wheelWidth/2 + wheelOffset, robot.length()/4 + wheelOffset/3);
+    drawWheel(0, 0);
+
+    popMatrix();
+
     // back left wheel
-    drawWheel(-1*robot.length()/2 - wheelWidth/2, -1*robot.length()/4);
+    pushMatrix();
+    rotate(-wheelRotation);
+    translate(-1*robot.length()/2 - wheelWidth/2  - wheelOffset, -1*robot.length()/4 - wheelOffset/3);
+    drawWheel(0, 0);
+
+    popMatrix();
+
     // back right wheel
-    drawWheel(robot.length()/2 + wheelWidth/2, -1*robot.length()/4);
+    pushMatrix();
+    rotate(-wheelRotation);
+    translate(robot.length()/2 + wheelWidth/2 + wheelOffset, -1*robot.length()/4 - wheelOffset/3);
+    drawWheel(0, 0);
+    popMatrix();
 
     anim = (anim + 0.075) % 1;
   }
@@ -172,49 +250,84 @@ class Wheel extends MovementPart {
 }
 
 class Tread extends MovementPart {
+  PShape[] shapes;
   int shapeIndex;
+  float width;
+
+  // these two are used only for death animations
+  float rotationL;
+  float fallL; // how far should the tread fall from the bot
+  float rotationR;
+  float fallR;
 
   Tread(Robot robot) {
     super (0, robot);
-    shapeIndex = 0;
+
+    this.shapes = new PShape[] {tread7, tread6, tread5, tread4, tread3, tread2, tread1};
+    this.shapeIndex = 0;
+
+    this.width = 4*(robot.size+1);
+
+    this.rotationL = 0;
+    this.rotationR = 0;
+    this.fallL = 0;
+    this.fallR = 0;
   }
 
   Tread(int level, Robot robot) {
     this(robot);
 
-    if (level == 1) size += 1;
+    if (level == 1) width += 4;
   }
 
   void draw() {
-    PShape[] shapes = {tread1, tread2, tread3, tread4, tread5, tread6, tread7};
     shapeMode(CENTER);
-    animate(shapes, 1, 1, 1); 
+    animate(1, 1, 1); 
   }
 
-  private void updateShape(int shapeInterval, PShape[] shapes){ // updates the shape of the MovementPart every shapeInterval. 
-    if (frameCount % shapeInterval == 0){ // if it is time to update the frame, draw the next shape.
-      shape(shapes[(shapeIndex) % shapes.length], robot.length()/2, 0, 4*(size+1), robot.length()); // shape(shape, x, y, width, height)
-      shape(shapes[(shapeIndex) % shapes.length], -robot.length()/2, 0, 4*(size+1), robot.length());
+  private void updateShape(int shapeInterval){ // updates the shape of the MovementPart every shapeInterval. 
+    if (robot.hp <= 0) {
+      float deathProg = (robot.deathAnimLength - robot.deathFrames)/float(robot.deathAnimLength);
+      fallR += 3*deathProg;
+      fallL -= 3*deathProg;
+
+      rotationL += 0.1*deathProg;
+      rotationR += 0.1*deathProg;
+    }
+
+    if (frameCount % shapeInterval == 0){ // if it is time to update the frame, change the index to the next shape.
       shapeIndex = (shapeIndex + 1) % shapes.length;
     }
-      else{ // otherwise, keep drawing the current shape.
-      shape(shapes[shapeIndex], robot.length()/2, 0, 4*(size+1), robot.length()); 
-      shape(shapes[shapeIndex], -robot.length()/2, 0, 4*(size+1), robot.length());
-    }
+
+    pushMatrix();
+    translate(robot.length()/2 + fallR, 0);
+    rotate(rotationR);
+    drawTread();
+    popMatrix();
+
+    pushMatrix();
+    translate(-robot.length()/2 + fallL, 0);
+    rotate(rotationL);
+    drawTread();
+    popMatrix();
   }
 
-  private void animate(PShape[] shapes, int smallFrameInterval, int midFrameInterval, int largeFrameInterval){ // animates according to the size of the robot and the desired frequency of animation. Makes sure that the small robot moves the fastest and the large robot moves the slowest.
+  private void drawTread() {
+    shape(shapes[shapeIndex], 0, 0, width, robot.length());
+  }
+
+  private void animate(int smallFrameInterval, int midFrameInterval, int largeFrameInterval){ // animates according to the size of the robot and the desired frequency of animation. Makes sure that the small robot moves the fastest and the large robot moves the slowest.
     switch (size){
       case 0: // if small robot
-        updateShape(smallFrameInterval, shapes); // change shape every x frames.
+        updateShape(smallFrameInterval); // change shape every x frames.
         break;
 
       case 1: // if medium robot
-        updateShape(midFrameInterval, shapes);
+        updateShape(midFrameInterval);
         break;
         
       case 2: // if large robot
-       updateShape(largeFrameInterval, shapes);
+       updateShape(largeFrameInterval);
        break;
     }
   }

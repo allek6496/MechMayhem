@@ -26,7 +26,7 @@ class Weapon {
     pushMatrix();
     translate(robot.pos.x, robot.pos.y);
     rotate(-1*robot.rotation - PI/2);
-    if (round == 0 && robot.player) scale(pauseScale);
+    if (round*2 % 2 == 1 && robot.player) scale(pauseScale);
 
     draw();
     
@@ -117,12 +117,28 @@ class Laser extends Weapon {
 
     // checks if this laser has hit an opponent
     boolean colliding(Robot opponent) {
-      return pos.dist(opponent.pos) < opponent.radius();
+      // reflect if it's a spinning bot
+      if (opponent.size == 1 && opponent.powerFrames >= 0) {
+        // this is a very naive approach because I can't be bothered to find the exact collision point and where it should go etc, this should look alright
+
+        // if it's inside the bot
+        if (pos.dist(opponent.pos) < opponent.radius()) {
+          // first project the velocity onto a vector to the center of opponent 
+          PVector laserToBot = PVector.sub(opponent.pos, pos);
+
+          laserToBot.mult(PVector.dot(laserToBot, vel) / pow(laserToBot.mag(), 2)); // laserToBot is now the projection of velocity towards the bot
+
+          // subtract double the velocity towards the bot, to basically reflect it away
+          vel.sub(laserToBot.mult(2));
+        }
+
+        return false;
+      } else return pos.dist(opponent.pos) < opponent.radius();
     }
   } 
 
   Laser(Robot robot) {
-    super(1, 0, new PVector(0, 0, robot.length()/3), robot);
+    super(1, 0, new PVector(0, robot.length()/3), robot);
     this.damage = 10;
     this.angle = 0;
     this.angleCenter = 0;
@@ -151,6 +167,8 @@ class Laser extends Weapon {
   }
 
   void checkCollision(Robot opponent) {
+    // this still runs if the robot is dead, the only thing updated are the laser pulses
+
     // position of the laser
     PVector pos = getPos();
 
@@ -162,8 +180,8 @@ class Laser extends Weapon {
     d *= -1;
 
     // TODO: I think there's a bug here involving multiple rotations that causes the laser to get stuck
-    // turn towards the enemy iff you're not already close enough
-    if (abs(d-angle) > turnSpeed) {
+    // turn towards the enemy iff you're not already close enough and alive lol
+    if (abs(d-angle) > turnSpeed && robot.hp > 0) {
       // positive increases the turn, negative decreases.
       float dMod = 1;
 
@@ -184,7 +202,7 @@ class Laser extends Weapon {
     }
 
     // ===== SHOOT THE LASER
-    if (cooldown <= 0 && onTarget) {
+    if (cooldown <= 0 && onTarget && robot.hp > 0) {
       cooldown = fireRate;
 
       pulses.add(new Pulse(pos.x, pos.y, angle - robot.rotation));
@@ -205,8 +223,15 @@ class Laser extends Weapon {
 
   }
 
-  // TODO: add some simple art in here for the laser cause it's really ugly (ik it's ugly even though i haven't started writing it yet)
+  // the laser is a bit ugly but oh well
   void draw() {
+    // if it's died, move the laser in a random direction 
+    if (robot.hp <= 0) {
+      attachPoint.mult(1 + 0.03*(robot.deathAnimLength - robot.deathFrames)/robot.deathAnimLength);
+
+      angle += 0.12*(robot.deathAnimLength - robot.deathFrames)/robot.deathAnimLength;
+    }
+
     noStroke();
     pushMatrix();
     translate(attachPoint.x, attachPoint.y);
@@ -248,7 +273,7 @@ class Hammer extends Weapon {
 
   void checkCollision(Robot opponent) {
     // it can't collide with the enemy if the hammer hasn't fully descended (into madness)
-    if (anim != 1) return;
+    if (anim != 1 || robot.hp <= 0) return;
     
     PVector point = new PVector(0, armLength());
     point.rotate(-1*robot.rotation - PI/2);
@@ -260,9 +285,15 @@ class Hammer extends Weapon {
   }
 
   void draw() {
-    anim += 0.1*animDir;
-    if (anim >= 1) {
-      animDir *= -1;
+    if (robot.hp <= 0) {
+      attachPoint.add(0, 3*(robot.deathAnimLength - robot.deathFrames)/robot.deathAnimLength);
+
+      // angle += 0.15*(robot.deathAnimLength - robot.deathFrames)/robot.deathAnimLength;
+    }
+
+    anim += 0.1*animDir*(robot.deathAnimLength - robot.deathFrames)/float(robot.deathAnimLength);
+    if (anim >= 1) { 
+      if (robot.hp > 0 || (robot.hp < 0 && robot.deathFrames < 15)) animDir *= -1; // don't raise the hammer after death, but still able to drop it
       anim = 1;
     } else if (anim <= 0) {
       animDir *= -1;
@@ -271,12 +302,14 @@ class Hammer extends Weapon {
 
     pushMatrix();
 
+    translate(attachPoint.x, attachPoint.y); // this is only used for deathAnim
+
     strokeWeight(10);
     stroke(0);
     line(0, 0, 0, armLength());
     noStroke();
 
-    if (anim >= 0.9) fill(70, 50, 30);
+    if (anim >= 0.9 && robot.hp > 0) fill(70, 50, 30);
     else fill(0);
     rectMode(CENTER);
     rect(0, armLength(), size/1.5, size/2.5);
@@ -289,15 +322,15 @@ class Hammer extends Weapon {
 }
 
 class Sawblade extends Weapon {
-  float lv0Damage = 0.25;
-  float lv1Damage = 0.35;
+  float lv0Damage = 0.6;
+  float lv1Damage = 1;
 
   float bladeAngle;
   float rotation;
   float length;
 
   Sawblade(Robot robot) {
-    super(0, 0, robot);
+    super(0, 0, new PVector(0, 10), robot);
     this.damage = lv0Damage;
     this.rotation = 0;
     this.bladeAngle = 0;
@@ -306,7 +339,7 @@ class Sawblade extends Weapon {
 
   // at level 2, +1 sawblade, so i in {1, 2} tells whether it's first (left) or second (right)
   Sawblade(int level, int i, Robot robot) {
-    super(0, level, robot);
+    super(0, level, new PVector(0, 10), robot);
     this.rotation = 0;
 
     if (level == 2) {
@@ -328,6 +361,8 @@ class Sawblade extends Weapon {
   }
 
   void checkCollision(Robot opponent) {
+    if (robot.hp <= 0) return;
+
     PVector point = new PVector(0, robot.length()-10); // point of the saw blade
     point.rotate(-1*robot.rotation - PI/2);
     point.add(robot.pos); // point is now centered on the sawblade
@@ -340,13 +375,27 @@ class Sawblade extends Weapon {
 
   // draw weapon and progress animation
   void draw() {
+    if (robot.hp <= 0) {
+      if (bladeAngle != 0) {
+        attachPoint.add(0.5*bladeAngle/abs(bladeAngle)*(robot.deathAnimLength - robot.deathFrames)/robot.deathAnimLength, 
+                        3*(robot.deathAnimLength - robot.deathFrames)/robot.deathAnimLength);
+
+        bladeAngle += bladeAngle/abs(bladeAngle) * (0.1*(robot.deathAnimLength - robot.deathFrames)/robot.deathAnimLength);
+      } else {
+        attachPoint.add(0, 3);
+
+        bladeAngle += 0.1;
+      }
+    }
+    
     pushMatrix();
+    translate(attachPoint.x, attachPoint.y);
     rotate(bladeAngle);
 
     fill(200);
     noStroke();
     rectMode(CORNERS);
-    rect(-6-robot.size, 10, 6+robot.size, length+10);
+    rect(-7-robot.size, 0, 7+robot.size, length);
 
     // circle to cover the bare ends
     if (level == 2) {
@@ -354,13 +403,13 @@ class Sawblade extends Weapon {
       circle(0, 0, 30);
     }
 
-    translate(0, length);
+    translate(0, length-10);
     rotate(rotation);
 
     shapeMode(CENTER);
     shape(sawblade, 0, 0, size, size); // shape(shape, x, y, width, height)
 
-    rotation += 0.3;
+    rotation += 0.3 * (robot.deathAnimLength - robot.deathFrames)/robot.deathAnimLength;
     popMatrix();
   }
 }

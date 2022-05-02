@@ -12,7 +12,9 @@ PShape sawblade;
 float aggressiveness;
 boolean powerUsed;
 PImage guiBackground;
-float round;
+float round = 0.5;
+int enemyLevel = 0;
+String selectedUpgrade = "";
 boolean start; 
 
 //Player Bot's Variables
@@ -21,11 +23,11 @@ int weapon;
 int movement;
 
 void setup() {
-  fullScreen();
-  //size(600,600);
+  // fullScreen();
+  size(800,800);
   frameRate(45);
   createGUI();
-  loadShapes();
+  loadShapesL();
   
   /**
   First three numbers:
@@ -46,7 +48,7 @@ void setup() {
   aggressiveness = aggroSlider.getValueF(); // initializing aggressiveness from the initial value of the aggressive slider.
   
   playerBot = new Robot(chassis, weapon, movement, aggressiveness, width/2, height/2, PI/2, true); // the chassis, weapon, and movement are 0 initially
-  robot1 = new Robot(0, 2, 0, 0.3, 400, 400, 3*PI/4, false);
+  robot1 = randomBot(0);
   
   preGameWindow.setVisible(true);
   duringGameWindow.setVisible(false);
@@ -62,7 +64,17 @@ void draw() {
   textAlign(LEFT,TOP);
   text("LOL",0,0);
 
-  if (round == 0){
+  if (round == -1) {
+    println("Death Screen");
+    round = 0.5;
+    // TODO: death screen
+  }
+
+  if (round == 0) {
+    // possible start-menu
+  }
+
+  if (round == 0.5){
     preGameWindow.setVisible(true);
 
     playerBot.update(null);
@@ -72,15 +84,16 @@ void draw() {
     if (playerBot.movementType != movement) playerBot.setMovement(movement);
 
     if (start){ // if the user presses the start button, proceed to round 1.
-      round++;      
-      
-    preGameWindow.setVisible(false);
+      round += 0.5;      
+      start = false;
 
-      //reset(preGameWindow);
+      preGameWindow.setVisible(false);
+
+    //reset(preGameWindow);
     }
   }
   
-  else if (round == 1){
+  if (round > 0 && round % 1 == 0){
     duringGameWindow.setVisible(true);
 
     playerBot.aggressiveness = aggressiveness;
@@ -88,42 +101,103 @@ void draw() {
     playerBot.update(robot1);
     robot1.update(playerBot);
 
-    playerBot.drawEffects(robot1);
-    robot1.drawEffects(playerBot);
+    if (playerBot.hp > 0) playerBot.drawEffects(robot1);
+    if (robot1.hp > 0) robot1.drawEffects(playerBot);
 
     println("R1: ", playerBot.hp, "\tR2: ", robot1.hp);
     println("A1: ", round(playerBot.aggressiveness*100)/100.0, "\tA2: ", round(robot1.aggressiveness*100)/100.0);
     println();
 
     // looks good :)
-    if (robot1.hp == 0 && playerBot.hp != 0){
+    if (robot1.hp <= 0 && playerBot.hp != 0 && robot1.deathFrames >= robot1.deathAnimLength){
       round += 0.5; // go to the upgrade bot gui.
       println("Win");
+
       duringGameWindow.setVisible(false);
+      postGameWindow.setVisible(true);
+
+      playerBot.reset();
     }
-    else if (playerBot.hp == 0)
+    else if (playerBot.hp <= 0 && playerBot.deathFrames >= playerBot.deathAnimLength) {
       round = -1; // go to the defeat screen. (even if both die at the same frame, gotta survive it)
+      playerBot.reset();
+    }
   }
-  else if (round == 1.5){
-    postGameWindow.setVisible(true);
-    playerBot.aggressiveness = 0.5;
-    playerBot.pos.x = width/2;
-    playerBot.pos.y = height/2;
-    playerBot.rotation = PI/2;    
+  
+  if (round == 1.5){
     playerBot.update(null);
 
     if (start){ // if the user presses the next round button, proceed to round 2.
-      round += 0.5;
+      // this section is extremely cancer, but just update the list of upgradable parts based off of what's fully upgraded
+      boolean weaponUpgradable = playerBot.weaponLevel != 2;
+      boolean chassisUpgradable = playerBot.chassisLevel != 1;
+      boolean movementUpgradable = playerBot.movementLevel != 1;
 
+      // how many parts can still be upgraded
+      int upgradableParts = 0;
+      if (weaponUpgradable) upgradableParts++;
+      if (chassisUpgradable) upgradableParts++;
+      if (movementUpgradable) upgradableParts++;
+      
+      String[] newUpgradeList = new String[upgradableParts];
+
+      // what index is the next to upgrade
+      int nextUpgrade = 0;
+
+      for (int i = 0; i < upgradableParts; i++) {
+        if (weaponUpgradable) {
+          newUpgradeList[nextUpgrade] = "Weapon";
+          weaponUpgradable = false;
+          nextUpgrade++;
+        } else if (chassisUpgradable) {
+          newUpgradeList[nextUpgrade] = "Chassis";
+          chassisUpgradable = false;
+          nextUpgrade++;
+        } else if (movementUpgradable) {
+          newUpgradeList[nextUpgrade] = "Movement";
+          movementUpgradable = false;
+          nextUpgrade++;
+        }
+
+        upgradeChoice.setItems(newUpgradeList, 0);
+      }
+
+      println("Started");
+
+      round -= 0.5;
+      enemyLevel += 1;
+      robot1 = randomBot(enemyLevel);
+
+      start = false;
 
       postGameWindow.setVisible(false);
       //reset(postGameWindow);
     }
   }
-  
-  else if (round == -1){
-    println("DEFEAT SCREEN");
+}
+
+Robot randomBot(int level) {
+  Robot robot = new Robot(int(random(3)), int(random(3)), int(random(3)), 0.3, 400, 400, 3*PI/4, false);
+
+  // there are only 4 upgrades possible, so if level is more than 4, it infinitely loops
+  if (level > 2 + 1 + 1) level = 4;
+
+  for (int i = 0; i < level; i++) {
+    int upgrade = int(random(3)); // random either 0, 1 or 2
+
+    // upgrade one of the parts, and if the chosen part can't be upgraded, run it again
+    if (upgrade == 0 && robot.chassisLevel == 0) {
+      robot.upgradeChassis();
+    } else if (upgrade == 1 && robot.weaponLevel <= 1) {
+      robot.upgradeWeapon();
+    } else if (upgrade == 2 && robot.movementLevel == 0) {
+      robot.upgradeMovement();
+    } else {
+      i--;
+    }
   }
+
+  return robot;
 }
 
 void loadShapesL() {

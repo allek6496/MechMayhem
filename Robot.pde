@@ -3,18 +3,26 @@ class Robot {
     int wallOffset = 30; // how many pixels before each bot starts turning away from the wall (larger turns sooner)
     float wallTurnFactor = 2; // how strongly it turns away from the wall
     
-    int weaponType;
-    int movementType;
+    int deathAnimLength = 75; // how many frames to keep animating after death
+
 
     // ----- Local variables
     int size; // 0-small 1-medium 2-large
+    int weaponType;
+    int movementType;
+
     float hp; 
     float speed;
     float turnSpeed;
+
     int chassisLevel;
+    int weaponLevel;
+    int movementLevel;
 
     int powerFrames; // how many frames the power-up has been occuring for, -1 for inactive
     boolean powerExhausted;
+
+    int deathFrames; // how many frames the bot has been dead, used to calculate weapon stuff
 
     float sizeFactor; // relative how much to scale the robot by, used for the jump power-up
     PVector targetPos;
@@ -31,7 +39,7 @@ class Robot {
     MovementPart mP;
     ArrayList<Weapon> weapons;
 
-    // TODO: build part/spark classes
+    // TODO: build part class
     ArrayList<SparkExplosion> sparks;
     // ArrayList<Part> parts;
 
@@ -41,15 +49,17 @@ class Robot {
         this.rotation = rotation; 
         this.aggressiveness = aggressiveness;
         this.size = size;
+        this.weaponType = weaponType;
+        this.movementType = movementType;
         this.player = player;
 
         this.status = 1;
-        
-        this.weaponType = weaponType;
-        this.movementType = movementType;
 
         this.powerFrames = -1;
         this.powerExhausted = false;
+
+        this.deathFrames = 0;
+
         this.sizeFactor = 1;
 
         this.hp = maxHP(); // bigger ==> more health
@@ -59,6 +69,7 @@ class Robot {
         // store all the spark explosions made so far
         sparks = new ArrayList<SparkExplosion>();
 
+        setChassis(size);
 
         setWeapon(weaponType);
 
@@ -67,7 +78,7 @@ class Robot {
 
     void update(Robot opponent) {
         // draw the player special in the middle of the screen when building
-        if (round == 0 && player) {
+        if (round*2 % 2 == 1 && player) {
 
             pushMatrix();
             translate(pos.x, pos.y); // this should be 300, 300
@@ -86,9 +97,28 @@ class Robot {
             return;
         } 
 
-        // TODO: some kind of check if it's player controlled or not
+        // if it's died, don't move or update
+        if (hp <= 0) {
+            if (deathFrames < deathAnimLength) deathFrames++;
+
+            // for an explanation see below
+            pushMatrix();
+
+            translate(pos.x, pos.y);
+            rotate(-1*rotation + PI/2);
+            
+            drawBody();
+            mP.draw();
+
+            popMatrix();
+
+            // draw weapon below the other bot if it's dead
+            drawEffects(opponent);
+            return;
+        }
+
+        // activate a power
         if (!player && hp <= maxHP()/2.0 && !powerExhausted) {
-            println("Powerup");
             powerExhausted = true;
 
             powerFrames = 0; // signal aiMove that the power has been activated
@@ -108,8 +138,9 @@ class Robot {
         // make the bot's center 0,0 and rotate so up is forward
         translate(pos.x,pos.y);
         rotate(-1*rotation + PI/2);
-        scale(sizeFactor);
+        scale(sizeFactor); // only used for the small bot when it jumps
 
+        // draw the chassis and movement parts
         drawBody();        
         mP.draw();
         
@@ -120,8 +151,8 @@ class Robot {
     void aiMove(Robot opponent) {
         // control the aggression
         if (!player) {
-            // TODO: make this based off of what loadout it has, laser likes around 0.5, sawblade likes around 0.9, hammer idk. maybe some size/mP influence as well
-            if (aggressiveness <= 0.9) aggressiveness += 0.003 * (size + 1)/2.0;
+            if (aggressiveness <= 0.9) aggressiveness += 0.003;
+            if (weaponType != 1) aggressiveness += 0.003; // go up faster without laser, cause laser is best at neutral aggression
         }
 
         // if we have an opponent, and we aren't currenlty performing a small or medium powerup
@@ -185,7 +216,7 @@ class Robot {
             float dist = radius() + opponent.length()*sqrt(2)/2.0 - pos.dist(oPos);
 
             // if they're colliding, only move the smaller bot, unless the opponent is spinning, in which case don't move them
-            if (dist > 0 && (size <= opponent.size || (opponent.powerFrames >= 0 && opponent.size == 1))) {
+            if (dist > 0 && (size <= opponent.size || (opponent.powerFrames >= 0 && opponent.size == 1) || (opponent.hp <= 0))) {
                 // if it is overlapping, move it directly away from the other bot equal to the overlap
                 PVector offset = PVector.sub(pos, oPos);
                 offset.setMag(dist);
@@ -203,7 +234,7 @@ class Robot {
         } 
         
         // if there is an active powerup
-        if (powerFrames >= 0) {
+        if (opponent != null && powerFrames >= 0) {
             float seconds;
 
             switch (size) {
@@ -243,7 +274,6 @@ class Robot {
                     break;
 
                 // spin in a circle at wall turn factor
-                // TODO: experiment with increasing attack rate for the duration
                 case 1:
                     seconds = 3;
 
@@ -304,8 +334,10 @@ class Robot {
     // draws only the chassis
     void drawBody() {
         rectMode(CENTER);
-        noStroke();
         
+        if (chassisLevel == 0) noStroke();
+        else stroke(200);
+
         // small-blue, medium-green large-red
         if (size==0) fill(0,0,255);
         if (size==1) fill(10,220,20);
@@ -313,7 +345,6 @@ class Robot {
 
         square(0,0, length());
 
-        // TODO: lightning bolt graphic or something like that
         if (powerFrames >= 0) {
             fill(200, 200, 0);
             square(0, 0, length()/2);
@@ -345,22 +376,23 @@ class Robot {
         // TODO: spawn parts (based off of rolling amount of damage dealt)
     }
 
+    // sets the part to a level-0 version of the passed type
     void setChassis(int size) {
         this.size = size;
+        this.chassisLevel = 0;
 
         setWeapon(weaponType);
         setMovement(movementType);
     }
 
-    // sets the weapon to a level-0 version of whichever is passed in
     void setWeapon(int weaponType) {
         this.weaponType = weaponType;
+        this.weaponLevel = 0;
 
         weapons = new ArrayList<Weapon>();
         // make the appropriate weapon (all fully levelled for testing)
         switch (weaponType) {
             case 0: 
-                // TODO: levelUp command or something
                 weapons.add(new Sawblade(this)); 
                 break;
             case 1: 
@@ -374,6 +406,7 @@ class Robot {
 
     void setMovement(int movementType) {
         this.movementType = movementType;
+        this.movementLevel = 0;
 
         switch (movementType) {
             case 0: 
@@ -394,6 +427,7 @@ class Robot {
         }
     }
 
+    // upgrades the specified part to +1 level
     void upgradeChassis() {
         if (chassisLevel == 0) {
             chassisLevel = 1;
@@ -403,68 +437,96 @@ class Robot {
     }
 
     void upgradeWeapon() {
-        if (weapons.get(0) instanceof Sawblade) {
-            switch(weapons.get(0).level) {
-                case 0: 
-                    weapons.remove(0);
-                    weapons.add(new Sawblade(1, 1, this));
-                    break;
-                case 1:
-                    weapons.remove(0);
-                    weapons.add(new Sawblade(2, 1, this));
-                    weapons.add(new Sawblade(2, 2, this));
-                    break;
-            }
-        }
+        if (weaponLevel <= 2) {
+            weaponLevel++;
 
-        if (weapons.get(0) instanceof Laser) {
-            switch(weapons.get(0).level) {
-                case 0:
-                    weapons.remove(0);
-                    weapons.add(new Laser(1, 1, this)); 
-                    weapons.add(new Laser(1, 2, this));
-                    break;
-                case 1:
-                    weapons = new ArrayList<Weapon>();
-                    weapons.add(new Laser(2, 1, this)); 
-                    weapons.add(new Laser(2, 2, this));
-                    weapons.add(new Laser(2, 3, this));
-                    break;
+            if (weapons.get(0) instanceof Sawblade) {
+                switch(weapons.get(0).level) {
+                    case 0: 
+                        weapons.remove(0);
+                        weapons.add(new Sawblade(1, 1, this));
+                        break;
+                    case 1:
+                        weapons.remove(0);
+                        weapons.add(new Sawblade(2, 1, this));
+                        weapons.add(new Sawblade(2, 2, this));
+                        break;
+                }
             }
-        }
 
-        if (weapons.get(0) instanceof Hammer) {
-            switch(weapons.get(0).level) {
-                case 0:
-                    weapons.remove(0);
-                    weapons.add(new Hammer(1, this));
-                    break;
-                case 1:
-                    weapons.remove(0);
-                    weapons.add(new Hammer(2, this));
-                    break;
+            if (weapons.get(0) instanceof Laser) {
+                switch(weapons.get(0).level) {
+                    case 0:
+                        weapons.remove(0);
+                        weapons.add(new Laser(1, 1, this)); 
+                        weapons.add(new Laser(1, 2, this));
+                        break;
+                    case 1:
+                        weapons = new ArrayList<Weapon>();
+                        weapons.add(new Laser(2, 1, this)); 
+                        weapons.add(new Laser(2, 2, this));
+                        weapons.add(new Laser(2, 3, this));
+                        break;
+                }
+            }
+
+            if (weapons.get(0) instanceof Hammer) {
+                switch(weapons.get(0).level) {
+                    case 0:
+                        weapons.remove(0);
+                        weapons.add(new Hammer(1, this));
+                        break;
+                    case 1:
+                        weapons.remove(0);
+                        weapons.add(new Hammer(2, this));
+                        break;
+                }
             }
         }
     }
 
     void upgradeMovement() {
-        if (mP instanceof Tread) {
-            mP = new Tread(1, this);
-            this.speed = 9-size*0.75;
-            this.turnSpeed = 0.08*(2-size/3.0);
+        if (movementLevel == 0) {
+            movementLevel = 1;
+
+            if (mP instanceof Tread) {
+                mP = new Tread(1, this);
+                this.speed = 9-size*0.75;
+                this.turnSpeed = 0.08*(2-size/3.0);
+            }
+
+            if (mP instanceof Wheel) {
+                mP = new Wheel(1, this);
+                this.speed = 12-size*0.75;
+                this.turnSpeed = 0.06*(2-size/2.0);    
+            }
+            
+            if (mP instanceof Legs) {
+                mP = new Legs(1, this);
+                this.speed = 7-size*0.75;
+                this.turnSpeed = 0.12*(2-size/2.0);   
+            }
         }
 
-        if (mP instanceof Wheel) {
-            mP = new Wheel(1, this);
-            this.speed = 12-size*0.75;
-            this.turnSpeed = 0.06*(2-size/2.0);    
+    }
+
+    void unUpgradeChassis() {
+        if (chassisLevel == 1) chassisLevel--;
+
+        hp = maxHP();
+    }
+
+    void unUpgradeWeapon() {
+        if (weaponLevel == 1) {
+            setWeapon(weaponType);
+        } else if (weaponLevel == 2) {
+            setWeapon(weaponType);
+            upgradeWeapon();
         }
-        
-        if (mP instanceof Legs) {
-            mP = new Legs(1, this);
-            this.speed = 7-size*0.75;
-            this.turnSpeed = 0.12*(2-size/2.0);   
-        }
+    }
+
+    void unUpgradeMovement() {
+        setMovement(movementType);
     }
 
     void usePower() {
@@ -473,6 +535,17 @@ class Robot {
 
     void setAgression(float aggression) {
         this.aggressiveness = aggression;
+    }
+
+    void reset() {
+        aggressiveness = 0.5;
+        pos.x = width/2;
+        pos.y = height/2;
+        rotation = PI/2;  
+
+        powerExhausted = false;
+
+        hp = maxHP();
     }
 
     // side length
@@ -486,6 +559,6 @@ class Robot {
     }
 
     float maxHP() {
-        return 75*(2+size) + 150*(chassisLevel+size);
+        return 75*(2+size) + 150*(chassisLevel);
     }
 }
