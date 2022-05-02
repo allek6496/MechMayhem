@@ -164,7 +164,7 @@ public void createGUI(){
   postGameWindow.noLoop();
   postGameWindow.setActionOnClose(G4P.KEEP_OPEN);
   postGameWindow.addDrawHandler(this, "drawpostGameWindow");
-  upgradeChoice = new GDropList(postGameWindow, 44, 11, 141, 104, 3, 10);
+  upgradeChoice = new GDropList(postGameWindow, 44, 11, 141, 130, 4, 10);
   upgradeChoice.setItems(loadStrings("list_315672"), 0);
   upgradeChoice.setLocalColorScheme(GCScheme.RED_SCHEME);
   upgradeChoice.addEventHandler(this, "upgradeChosen");
