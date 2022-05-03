@@ -5,7 +5,7 @@ class Robot {
     
     int deathAnimLength = 75; // how many frames to keep animating after death
 
-
+color colour;
     // ----- Local variables
     int size; // 0-small 1-medium 2-large
     int weaponType;
@@ -339,10 +339,12 @@ class Robot {
         noStroke();
 
         // small-blue, medium-green large-red
-        if (size==0) fill(0,0,255);
-        if (size==1) fill(10,220,20);
-        if (size==2) fill(255, 0, 0);
-
+        
+        
+        if (size==0) colour=color(0,0,255);
+        if (size==1) colour=color(10,220,20);
+        if (size==2) colour=color(255, 0, 0);
+        fill(colour);
         square(0,0, length());
 
         if (powerFrames >= 0) {
@@ -378,7 +380,7 @@ class Robot {
         this.hp -= damage;
 
         // more damage = more sparks
-        sparks.add(new SparkExplosion(loc, int(random(6*sqrt(damage), 8*sqrt(damage)))));
+        sparks.add(new SparkExplosion(loc, int(random(6*sqrt(damage), 8*sqrt(damage))),colour));
 
         // TODO: spawn parts (based off of rolling amount of damage dealt)
     }
