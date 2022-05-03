@@ -398,7 +398,6 @@ class Robot {
 
         // more damage = more sparks
         int partNum = int(maxHP() - hp - partsSpawned*partRate)/partRate;
-        println(partNum);
         partsSpawned += partNum;
         sparks.add(new SparkExplosion(loc, int(random(6*sqrt(damage), 8*sqrt(damage))),partNum,colour));
 
@@ -434,9 +433,9 @@ class Robot {
         }
 
         this.weaponLevel = 0;
-        for (int i = 0; i < level; i++) {
-            upgradeWeapon();
-        }
+        if (level >= 1) upgradeWeapon();
+        if (level >= 2) upgradeWeapon();
+        this.weaponLevel = level;
 
         // println("setting weapon to", level);
     }
@@ -462,8 +461,8 @@ class Robot {
                 break;
         }
 
+        movementLevel = 0;
         if (level == 1) upgradeMovement();
-        else movementLevel = 0;
     }
 
     // upgrades the specified part to +1 level
@@ -480,12 +479,12 @@ class Robot {
             weaponLevel++;
 
             if (weapons.get(0) instanceof Sawblade) {
-                switch(weapons.get(0).level) {
-                    case 0: 
+                switch(weaponLevel) {
+                    case 1: 
                         weapons.remove(0);
                         weapons.add(new Sawblade(1, 1, this));
                         break;
-                    case 1:
+                    case 2:
                         weapons.remove(0);
                         weapons.add(new Sawblade(2, 1, this));
                         weapons.add(new Sawblade(2, 2, this));
@@ -494,13 +493,13 @@ class Robot {
             }
 
             if (weapons.get(0) instanceof Laser) {
-                switch(weapons.get(0).level) {
-                    case 0:
+                switch(weaponLevel) {
+                    case 1:
                         weapons.remove(0);
                         weapons.add(new Laser(1, 1, this)); 
                         weapons.add(new Laser(1, 2, this));
                         break;
-                    case 1:
+                    case 2:
                         weapons = new ArrayList<Weapon>();
                         weapons.add(new Laser(2, 1, this)); 
                         weapons.add(new Laser(2, 2, this));
@@ -510,12 +509,12 @@ class Robot {
             }
 
             if (weapons.get(0) instanceof Hammer) {
-                switch(weapons.get(0).level) {
-                    case 0:
+                switch(weaponLevel) {
+                    case 1:
                         weapons.remove(0);
                         weapons.add(new Hammer(1, this));
                         break;
-                    case 1:
+                    case 2:
                         weapons.remove(0);
                         weapons.add(new Hammer(2, this));
                         break;
@@ -587,6 +586,9 @@ class Robot {
         powerFrames = -1;
 
         deathFrames = 0;
+
+        // clear debris
+        sparks = new ArrayList<SparkExplosion>();
 
         // reset combat stuff
         hp = maxHP();

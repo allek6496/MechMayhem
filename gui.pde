@@ -105,6 +105,41 @@ public void nextRoundButtonClicked(GButton source, GEvent event) { //_CODE_:next
   selectedUpgrade = "";
 } //_CODE_:nextRoundButton:347340:
 
+public void duringGameKeyHandler(PApplet appc, GWinData data, KeyEvent keyEvent) {
+  if (round > 0 && floor(round) == ceil(round)) {
+    char key = keyEvent.getKey();
+
+    if (key == 'a') {
+      aggressiveness = 0;
+      aggroSlider.setValue(0);
+    } if (key == 's') {
+      aggressiveness = 0.5;
+      aggroSlider.setValue(0.5);
+    } if (key == 'd') {
+      aggressiveness = 1;
+      aggroSlider.setValue(1);
+    }
+
+
+    if (key == ' ') {
+      // powerUsed = true;
+      if (keyEvent.getAction() == keyEvent.PRESS) powerUsed = true;
+      else if (keyEvent.getAction() == keyEvent.RELEASE) powerUsed = false;
+    }
+  }
+}
+
+public void beforeGameKeyHandler(PApplet appc, GWinData data, KeyEvent keyEvent) {
+  if (keyEvent.getKey() == ' ' && round == 0.5) {
+    start = true;
+  }
+}
+
+public void afterGameKeyHandler(PApplet appc, GWinData data, KeyEvent keyEvent) {
+  if (keyEvent.getKey() == ' ' && round > 1 && round * 2 % 2 == 1) {
+    start = true;
+  }
+}
 
 
 // Create all the GUI controls. 
@@ -118,6 +153,7 @@ public void createGUI(){
   duringGameWindow.noLoop();
   duringGameWindow.setActionOnClose(G4P.KEEP_OPEN);
   duringGameWindow.addDrawHandler(this, "drawDuringGameWindow");
+  duringGameWindow.addKeyHandler(this, "duringGameKeyHandler");
   powerButton = new GButton(duringGameWindow, 120, 80, 80, 30);
   powerButton.setText("POWER");
   powerButton.setLocalColorScheme(GCScheme.GOLD_SCHEME);
@@ -141,6 +177,7 @@ public void createGUI(){
   preGameWindow.noLoop();
   preGameWindow.setActionOnClose(G4P.KEEP_OPEN);
   preGameWindow.addDrawHandler(this, "drawpreGameWindow");
+  preGameWindow.addKeyHandler(this, "beforeGameKeyHandler");
   chassisChoice = new GDropList(preGameWindow, 10, 20, 150, 150, 4, 10);
   chassisChoice.setItems(loadStrings("list_730452"), 0);
   chassisChoice.setLocalColorScheme(GCScheme.GOLD_SCHEME);
@@ -162,6 +199,7 @@ public void createGUI(){
   postGameWindow.noLoop();
   postGameWindow.setActionOnClose(G4P.KEEP_OPEN);
   postGameWindow.addDrawHandler(this, "drawpostGameWindow");
+  postGameWindow.addKeyHandler(this, "afterGameKeyHandler");
   upgradeChoice = new GDropList(postGameWindow, 44, 11, 141, 130, 4, 10);
   upgradeChoice.setItems(loadStrings("list_315672"), 0);
   upgradeChoice.setLocalColorScheme(GCScheme.RED_SCHEME);

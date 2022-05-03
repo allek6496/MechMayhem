@@ -75,7 +75,7 @@ class SparkExplosion
     createTime--;
     if (dead.size() > 0){
       for (Metal m:dead) {
-        metals.remove(dead);
+        metals.remove(m);
         fill(colour);
         sq(m.position.x,m.position.y,5);
       }

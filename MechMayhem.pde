@@ -71,6 +71,7 @@ void setup() {
 }
 
 void draw() {
+
   background(100);
 
   stroke(255);
@@ -224,6 +225,7 @@ void draw() {
 
     if (start){ // if the user presses the next round button, proceed to round 2.
       println("Started");
+      selectedUpgrade = "";
 
       round += 0.5;
       enemyLevel += 1;
@@ -305,6 +307,14 @@ void stopSFX() {
   stopAudioGroup(laserSounds);
   sawIdle.stop();
   sawActive.stop();
+}
+
+void keyPressed() {
+  println("pressed");
+}
+
+void keyReleased() {
+  if (key == ' ') powerUsed = false;
 }
 
 void loadShapesL() {

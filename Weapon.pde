@@ -55,7 +55,12 @@ class Weapon {
 
     // this robot deals extra damage
     } else if (robot.powerFrames >= 0 && robot.size == 2) {
-      opponent.dealDamage(damage*2, loc);
+      // if they've got spin powerup, take 1/3 damage
+      if (opponent.powerFrames >= 0 && opponent.size == 2) {
+        opponent.dealDamage(damage/3.0, loc);
+      } else {
+        opponent.dealDamage(damage*2, loc);
+      }
 
     // enemy takes 1/2 damage
     } else if (opponent.powerFrames >= 0 && opponent.size == 2) {
@@ -273,7 +278,7 @@ class Hammer extends Weapon {
 
   Hammer(Robot robot) {
     super (2, 0, new PVector(0, 0), robot);
-    this.damage = 20;
+    this.damage = 12;
     this.anim = 0;
     this.animDir = 1;
     this.length = size;
@@ -284,7 +289,7 @@ class Hammer extends Weapon {
 
     if (level >= 1) animDir = 2; // 2x pound speed
     if (level == 2) {
-      size *= 1.5;
+      size *= 2;
       length *= 1.2;
     }
   }
