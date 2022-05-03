@@ -69,11 +69,11 @@ class Robot {
         // store all the spark explosions made so far
         sparks = new ArrayList<SparkExplosion>();
 
-        setChassis(size);
+        setChassis(size, 0);
 
-        setWeapon(weaponType);
+        setWeapon(weaponType, 0);
 
-        setMovement(movementType);
+        setMovement(movementType, 0);
     }
 
     void update(Robot opponent) {
@@ -127,6 +127,7 @@ class Robot {
             powerExhausted = true;
 
             powerFrames = 0; 
+            powerUsed = false;
         }
 
         // run ai and other stuff
@@ -335,8 +336,7 @@ class Robot {
     void drawBody() {
         rectMode(CENTER);
         
-        if (chassisLevel == 0) noStroke();
-        else stroke(200);
+        noStroke();
 
         // small-blue, medium-green large-red
         if (size==0) fill(0,0,255);
@@ -348,6 +348,13 @@ class Robot {
         if (powerFrames >= 0) {
             fill(200, 200, 0);
             square(0, 0, length()/2);
+        }
+
+        if (chassisLevel == 1) {
+            fill(0, 0);
+            stroke(75);
+            strokeWeight(5);
+            square(0, 0, length()-12);
         }
     }
 
@@ -376,18 +383,24 @@ class Robot {
         // TODO: spawn parts (based off of rolling amount of damage dealt)
     }
 
-    // sets the part to a level-0 version of the passed type
-    void setChassis(int size) {
+    // sets the part to a version of the passed type at a given level
+    void setChassis(int size, int level) {
         this.size = size;
-        this.chassisLevel = 0;
+        this.chassisLevel = level;
+        hp = maxHP();
 
-        setWeapon(weaponType);
-        setMovement(movementType);
+        println("Setting chassis to", level);
+
+        setWeapon(weaponType, weaponLevel);
+        setMovement(movementType, movementLevel);
+
+        println("Weapon:", weaponLevel);
+        println();
     }
 
-    void setWeapon(int weaponType) {
+    void setWeapon(int weaponType, int level) {
         this.weaponType = weaponType;
-        this.weaponLevel = 0;
+        // this.weaponLevel = level;
 
         weapons = new ArrayList<Weapon>();
         // make the appropriate weapon (all fully levelled for testing)
@@ -402,11 +415,17 @@ class Robot {
                 weapons.add(new Hammer(this)); 
                 break;
         }
+
+        this.weaponLevel = 0;
+        for (int i = 0; i < level; i++) {
+            upgradeWeapon();
+        }
+
+        // println("setting weapon to", level);
     }
 
-    void setMovement(int movementType) {
+    void setMovement(int movementType, int level) {
         this.movementType = movementType;
-        this.movementLevel = 0;
 
         switch (movementType) {
             case 0: 
@@ -425,6 +444,9 @@ class Robot {
                 this.turnSpeed = 0.1*(2-size/2.0);
                 break;
         }
+
+        if (level == 1) upgradeMovement();
+        else movementLevel = 0;
     }
 
     // upgrades the specified part to +1 level
@@ -437,7 +459,7 @@ class Robot {
     }
 
     void upgradeWeapon() {
-        if (weaponLevel <= 2) {
+        if (weaponLevel < 2) {
             weaponLevel++;
 
             if (weapons.get(0) instanceof Sawblade) {
@@ -511,22 +533,19 @@ class Robot {
     }
 
     void unUpgradeChassis() {
-        if (chassisLevel == 1) chassisLevel--;
-
-        hp = maxHP();
+        setChassis(size, 0);
     }
 
     void unUpgradeWeapon() {
         if (weaponLevel == 1) {
-            setWeapon(weaponType);
+            setWeapon(weaponType, 0);
         } else if (weaponLevel == 2) {
-            setWeapon(weaponType);
-            upgradeWeapon();
+            setWeapon(weaponType, 1);
         }
     }
 
     void unUpgradeMovement() {
-        setMovement(movementType);
+        setMovement(movementType, 0);
     }
 
     void usePower() {
@@ -538,14 +557,24 @@ class Robot {
     }
 
     void reset() {
+        // this doesn't do much
         aggressiveness = 0.5;
+
+        // move it to the center, pointing up
         pos.x = width/2;
         pos.y = height/2;
         rotation = PI/2;  
 
+        // reset the power-up status
         powerExhausted = false;
+        powerFrames = -1;
 
+        deathFrames = 0;
+
+        // reset combat stuff
         hp = maxHP();
+        setWeapon(weaponType, weaponLevel);
+        setMovement(movementType, movementLevel);        
     }
 
     // side length

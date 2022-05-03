@@ -68,6 +68,8 @@ synchronized public void drawpostGameWindow(PApplet appc, GWinData data) { //_CO
 } //_CODE_:postGameWindow:595249:
 
 public void upgradeChosen(GDropList source, GEvent event) { //_CODE_:upgradeChoice:315672:
+  println("chosen");
+
   if (upgradeChoice.getSelectedText().equals("Chassis")) {
     playerBot.upgradeChassis();
 
@@ -75,8 +77,6 @@ public void upgradeChosen(GDropList source, GEvent event) { //_CODE_:upgradeChoi
       playerBot.unUpgradeWeapon();
     else if (selectedUpgrade.equals("Movement"))
       playerBot.unUpgradeMovement();
-    
-    selectedUpgrade = upgradeChoice.getSelectedText();
   }
 
   else if (upgradeChoice.getSelectedText().equals("Weapon")) {
@@ -86,9 +86,7 @@ public void upgradeChosen(GDropList source, GEvent event) { //_CODE_:upgradeChoi
       playerBot.unUpgradeChassis();
     else if (selectedUpgrade.equals("Movement"))
       playerBot.unUpgradeMovement();
-    
-    selectedUpgrade = upgradeChoice.getSelectedText();
-  }
+    }
 
   else if (upgradeChoice.getSelectedText().equals("Movement")) {
     playerBot.upgradeMovement();
@@ -97,9 +95,9 @@ public void upgradeChosen(GDropList source, GEvent event) { //_CODE_:upgradeChoi
       playerBot.unUpgradeChassis();
     else if (selectedUpgrade.equals("Weapon"))
       playerBot.unUpgradeWeapon();
-
-    selectedUpgrade = upgradeChoice.getSelectedText();
   }
+
+  selectedUpgrade = upgradeChoice.getSelectedText();
 } //_CODE_:upgradeChoice:315672:
 
 public void nextRoundButtonClicked(GButton source, GEvent event) { //_CODE_:nextRoundButton:347340:

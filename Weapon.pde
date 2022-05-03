@@ -61,6 +61,12 @@ class Weapon {
     } else if (opponent.powerFrames >= 0 && opponent.size == 2) {
       opponent.dealDamage(damage/2.0, loc);
 
+    // we take 1/2 damage lmao  
+    } else if (opponent.powerFrames >= 0 && opponent.size == 1) {
+      PVector position = new PVector(robot.pos.x, robot.pos.y);
+      position.add(PVector.sub(opponent.pos, robot.pos).div(2));
+      robot.dealDamage(damage/2.0, position);
+    
     // no relavent powerups
     } else {
       opponent.dealDamage(damage, loc);
@@ -88,6 +94,7 @@ class Laser extends Weapon {
     PVector pos;
     PVector vel;
     float speed = 20;
+    boolean reflected = false; // has it been reflected by spinning move
   
     Pulse(float x, float y, float angle) { // for angle, 0 is right and increases counterclockwise
       this.pos = new PVector(x, y);
@@ -132,7 +139,17 @@ class Laser extends Weapon {
           vel.sub(laserToBot.mult(2));
         }
 
+        reflected = true;
+
         return false;
+
+      // if it has been reflected, manually damage our robot 
+      } else if (reflected && pos.dist(robot.pos) < robot.radius()) {
+        dealDamage(robot, damage, pos);
+        pulses.remove(this);
+        return false;
+
+      // if there's no special case, just return if they've collided with opponent
       } else return pos.dist(opponent.pos) < opponent.radius();
     }
   } 
@@ -404,10 +421,25 @@ class Sawblade extends Weapon {
     }
 
     translate(0, length-10);
+
+
     rotate(rotation);
 
+    if (level > 0) {
+      fill(75);
+      circle(0, 0, size/2);
+
+      stroke(25);
+      strokeWeight(4);
+      line(-size/4, 0, size/4, 0);
+      line(0, -size/4, 0, size/4);
+      noStroke();
+
+    }
+
     shapeMode(CENTER);
-    shape(sawblade, 0, 0, size, size); // shape(shape, x, y, width, height)
+    if (level == 1) shape(sawblade, 0, 0, size*1.2, size*1.2);
+    else shape(sawblade, 0, 0, size, size); // shape(shape, x, y, width, height)
 
     rotation += 0.3 * (robot.deathAnimLength - robot.deathFrames)/robot.deathAnimLength;
     popMatrix();

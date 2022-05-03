@@ -1,3 +1,8 @@
+// TODO:
+// I'm getting a concurrentModificationException when I close the main window, idk what's up with that
+// The first item selected doesn't count for upgrading, fix that
+// PARTS @Rayz
+
 import g4p_controls.*;
 //import java.awt.Frame;
 //import processing.awt.PSurfaceAWT;
@@ -12,7 +17,7 @@ PShape sawblade;
 float aggressiveness;
 boolean powerUsed;
 PImage guiBackground;
-float round = 0.5;
+float round = 0;
 int enemyLevel = 0;
 String selectedUpgrade = "";
 boolean start; 
@@ -66,11 +71,13 @@ void draw() {
 
   if (round == -1) {
     println("Death Screen");
-    round = 0.5;
-    // TODO: death screen
+    round = 0;
+    // TODO: death screen, time-out back to main menu
   }
 
   if (round == 0) {
+    playerBot = new Robot(chassis, weapon, movement, aggressiveness, width/2, height/2, PI/2, true);
+    round = 0.5;
     // possible start-menu
   }
 
@@ -79,9 +86,9 @@ void draw() {
 
     playerBot.update(null);
 
-    if (playerBot.size != chassis) playerBot.setChassis(chassis);
-    if (playerBot.weaponType != weapon) playerBot.setWeapon(weapon);
-    if (playerBot.movementType != movement) playerBot.setMovement(movement);
+    if (playerBot.size != chassis) playerBot.setChassis(chassis, 0);
+    if (playerBot.weaponType != weapon) playerBot.setWeapon(weapon, 0);
+    if (playerBot.movementType != movement) playerBot.setMovement(movement, 0);
 
     if (start){ // if the user presses the start button, proceed to round 1.
       round += 0.5;      
@@ -117,17 +124,7 @@ void draw() {
       postGameWindow.setVisible(true);
 
       playerBot.reset();
-    }
-    else if (playerBot.hp <= 0 && playerBot.deathFrames >= playerBot.deathAnimLength) {
-      round = -1; // go to the defeat screen. (even if both die at the same frame, gotta survive it)
-      playerBot.reset();
-    }
-  }
-  
-  if (round == 1.5){
-    playerBot.update(null);
 
-    if (start){ // if the user presses the next round button, proceed to round 2.
       // this section is extremely cancer, but just update the list of upgradable parts based off of what's fully upgraded
       boolean weaponUpgradable = playerBot.weaponLevel != 2;
       boolean chassisUpgradable = playerBot.chassisLevel != 1;
@@ -160,8 +157,19 @@ void draw() {
         }
 
         upgradeChoice.setItems(newUpgradeList, 0);
+        // upgradeChosen(null, null);
       }
+    }
+    else if (playerBot.hp <= 0 && playerBot.deathFrames >= playerBot.deathAnimLength) {
+      round = -1; // go to the defeat screen. (even if both die at the same frame, gotta survive it)
+      playerBot.reset();
+    }
+  }
+  
+  if (round == 1.5){
+    playerBot.update(null);
 
+    if (start){ // if the user presses the next round button, proceed to round 2.
       println("Started");
 
       round -= 0.5;
