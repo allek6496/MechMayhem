@@ -11,9 +11,8 @@ class SparkExplosion
   int createTime;
   color colour;
 
- SparkExplosion(PVector position, int num, color c) 
+ SparkExplosion(PVector position, int num, int partNum, color c) 
   {
-    
     origin = position;
     createTime=(int)(random(30,50));
     sparks = new ArrayList<Spark>();
@@ -26,9 +25,10 @@ class SparkExplosion
 
     for (int i = 0; i < num; i++) {
         addSpark();
-        if (i%10 == 0) {
-          addMetal();
-        }
+    }
+
+    for (int i = 0; i < partNum; i++) {
+      addMetal();
     }
   }
 
@@ -44,6 +44,7 @@ class SparkExplosion
     metals.add(new Metal(new PVector(origin.x,origin.y),int(red(colour)),int(blue(colour)),int(green(colour))));
   }
   void sq(float x, float y, int r) {
+    rectMode(CORNERS);
     rect(x-(r/2),y-(r/2),x+(r/2),y+(r/2));
   }
   
@@ -73,11 +74,11 @@ class SparkExplosion
     }
     createTime--;
     if (dead.size() > 0){
-    for (Metal m:dead) {
-      metals.remove(dead);
-      fill(colour);
-      sq(m.position.x,m.position.y,5);
-    }
+      for (Metal m:dead) {
+        metals.remove(dead);
+        fill(colour);
+        sq(m.position.x,m.position.y,5);
+      }
     }
   }
   

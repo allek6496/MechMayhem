@@ -71,14 +71,12 @@ void setup() {
 }
 
 void draw() {
-  println(round);
-
   background(100);
 
   stroke(255);
   
   textAlign(LEFT,TOP);
-  text("LOL",0,0);
+  // text("LOL",0,0);
 
   // death screen (doesn't exist, just go to main menu)
   if (round == -1) {

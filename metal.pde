@@ -25,7 +25,7 @@
   void run(float t) 
   {
     
-    update(t);
+    if (!isDead()) update(t);
     display();
   }  
  
@@ -43,24 +43,25 @@
   void update(float t) 
   {
     
-    acceleration.mult(0);
+    // acceleration.mult(0);
     // addforceGravity(); // 2d so gravity doesn't make sense
-    addforce(t);
-    velocity.add(acceleration);
+    // addforce(t);
+    // velocity.add(acceleration);
     position.add(velocity);
-    lifespan -= 20;
-    r /= 1.02;
-    g /= 1.02;
-    b /= 1.02;
+    lifespan -= 50;
+    // r /= 1.02;
+    // g /= 1.02;
+    // b /= 1.02;
   }
   
   void sq(float x, float y, int r) {
+    rectMode(CORNERS);
     rect(x-(r/2),y-(r/2),x+(r/2),y+(r/2));
   }
   void display() 
   {
     noStroke();
-    fill(r,g,b,sqrt(lifespan/200.0)*255);
+    fill(r,g,b);
     //rect(position.x-2,position.y-2,position.x+2,position.y+2);
     sq(position.x,position.y,5);
   }

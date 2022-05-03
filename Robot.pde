@@ -5,11 +5,12 @@ class Robot {
     
     int deathAnimLength = 75; // how many frames to keep animating after death
 
-color colour;
+    int partRate = 7; // how many hp before a part is spawned
     // ----- Local variables
     int size; // 0-small 1-medium 2-large
     int weaponType;
     int movementType;
+    color colour;
 
     float hp; 
     float speed;
@@ -41,6 +42,7 @@ color colour;
 
     // TODO: build part class
     ArrayList<SparkExplosion> sparks;
+    int partsSpawned;
     // ArrayList<Part> parts;
 
     Robot(int size, int weaponType, int movementType, float aggressiveness, int x, int y, float rotation, boolean player) {
@@ -52,6 +54,8 @@ color colour;
         this.weaponType = weaponType;
         this.movementType = movementType;
         this.player = player;
+
+        this.partsSpawned = 0;
 
         this.status = 1;
 
@@ -89,11 +93,7 @@ color colour;
 
             popMatrix();
 
-            pushMatrix();
             drawEffects(opponent);
-
-            popMatrix();
-
             return;
         } 
 
@@ -397,7 +397,10 @@ color colour;
         this.hp -= damage;
 
         // more damage = more sparks
-        sparks.add(new SparkExplosion(loc, int(random(6*sqrt(damage), 8*sqrt(damage))),colour));
+        int partNum = int(maxHP() - hp - partsSpawned*partRate)/partRate;
+        println(partNum);
+        partsSpawned += partNum;
+        sparks.add(new SparkExplosion(loc, int(random(6*sqrt(damage), 8*sqrt(damage))),partNum,colour));
 
         // TODO: spawn parts (based off of rolling amount of damage dealt)
     }
@@ -589,15 +592,6 @@ color colour;
         hp = maxHP();
         setWeapon(weaponType, weaponLevel);
         setMovement(movementType, movementLevel);        
-    }
-
-    // more powerful version of reset that removes upgrades
-    void die() {
-        weaponLevel = 0;
-        chassisLevel = 0;
-        movementLevel = 0;
-
-        reset();
     }
 
     // side length
