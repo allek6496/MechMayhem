@@ -21,6 +21,7 @@ class Robot {
     int movementLevel;
 
     int powerFrames; // how many frames the power-up has been occuring for, -1 for inactive
+    int powerLength;
     boolean powerExhausted;
 
     int deathFrames; // how many frames the bot has been dead, used to calculate weapon stuff
@@ -242,9 +243,7 @@ class Robot {
 
             switch (size) {
                 // jump to the furthest corner -> 3 seconds
-                case 0:
-                    seconds = 0.5;
-                    
+                case 0:                    
                     // if this is the first frame of the power-up, decide where the target corner is
                     if (powerFrames == 0) {
                         // set the target as the opposite quadrant from opponent
@@ -261,16 +260,18 @@ class Robot {
                                 targetPos = new PVector(wallBuffer, wallBuffer);
                             }
                         }
-                    } else if (powerFrames >= frameRate * seconds) powerFrames = -2; // becomes -1 (signaling no power) after following increment
+                    } else if (powerFrames >= powerLength) powerFrames = -2; // becomes -1 (signaling no power) after following increment
 
                     powerFrames++; 
                     
-                    sizeFactor = 1 + sin(powerFrames * PI/(seconds*frameRate))*0.6; // get larger then back to normal over 3 seconds
+                    sizeFactor = 1 + sin(powerFrames * PI/(powerLength))*0.6; // get larger then back to normal over 3 seconds
 
 
-                    // move at a constant rate towards the target position
-                    pos.x += (targetPos.x - pos.x) / (seconds*frameRate - powerFrames);
-                    pos.y += (targetPos.y - pos.y) / (seconds*frameRate - powerFrames);
+                    // move at a constant rate towards the target position (only if the movement hasn't finished)
+                    if (powerFrames > 0 && powerFrames != powerLength) {
+                        pos.x += (targetPos.x - pos.x) / (powerLength - powerFrames);
+                        pos.y += (targetPos.y - pos.y) / (powerLength - powerFrames);
+                    }
 
                     rotation += 0.2;
 
@@ -278,9 +279,7 @@ class Robot {
 
                 // spin in a circle at wall turn factor
                 case 1:
-                    seconds = 3;
-
-                    if (powerFrames >= frameRate * seconds) powerFrames = -1;
+                    if (powerFrames >= powerLength) powerFrames = -1;
                     else powerFrames++;
 
                     rotation += turnSpeed*wallTurnFactor;
@@ -291,9 +290,7 @@ class Robot {
                     // don't assume the player wants to go in for the kill, but the ai definitely does
                     if (!player) aggressiveness = 1;
 
-                    seconds = 6;
-
-                    if (powerFrames >= frameRate * seconds) powerFrames = -1;
+                    if (powerFrames >= powerLength) powerFrames = -1;
                     else powerFrames++;
 
                     break;
@@ -366,7 +363,7 @@ class Robot {
 
         if (powerFrames >= 0) {
             fill(200, 200, 0);
-            square(0, 0, length()/2);
+            square(0, 0, length()/2 * (powerLength - powerFrames)/powerLength);
         }
 
         if (chassisLevel == 1) {
@@ -377,7 +374,7 @@ class Robot {
         }
     }
 
-    void drawEffects(Robot opponent) {
+    synchronized void drawEffects(Robot opponent) {
         for (Weapon weapon : weapons) {
             weapon.update(opponent);
         }
@@ -410,6 +407,21 @@ class Robot {
         this.chassisLevel = level;
         hp = maxHP();
 
+        float seconds = 0;
+        switch(size) {
+            case 0:
+                seconds = 1;
+                break;
+            case 1:
+                seconds = 3;
+                break;
+            case 2:
+                seconds = 6;
+                break; 
+        }
+
+        powerLength = round(frameR*seconds);
+
         setWeapon(weaponType, weaponLevel);
         setMovement(movementType, movementLevel);
     }
@@ -436,8 +448,6 @@ class Robot {
         if (level >= 1) upgradeWeapon();
         if (level >= 2) upgradeWeapon();
         this.weaponLevel = level;
-
-        // println("setting weapon to", level);
     }
 
     void setMovement(int movementType, int level) {

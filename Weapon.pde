@@ -185,6 +185,8 @@ class Laser extends Weapon {
           break;
       }
     }
+
+    angle = angleCenter;
   }
 
   void checkCollision(Robot opponent) {
@@ -197,12 +199,22 @@ class Laser extends Weapon {
     boolean onTarget = false; // whether or not the laser is poitning at the enemy
     float d = robot.headToAng(PVector.sub(opponent.pos, pos).heading());
 
+    // println(d);
+
     d -= robot.rotation;
-    d *= -1;
+    // d *= -1;
+    
+    if (d > PI) d = TWO_PI - d;
+    else d *= -1;
+
+    println(d);
+
+    // d = (d + TWO_PI) % TWO_PI; // fix negative numbers
 
     // TODO: I think there's a bug here involving multiple rotations that causes the laser to get stuck
     // turn towards the enemy iff you're not already close enough and alive lol
     if (abs(d-angle) > turnSpeed && robot.hp > 0) {
+      println(angleCenter);
       // positive increases the turn, negative decreases.
       float dMod = 1;
 
@@ -347,8 +359,8 @@ class Hammer extends Weapon {
 }
 
 class Sawblade extends Weapon {
-  float lv0Damage = 0.6;
-  float lv1Damage = 1;
+  float lv0Damage = 0.75;
+  float lv1Damage = 1.2;
 
   float bladeAngle;
   float rotation;
@@ -418,6 +430,9 @@ class Sawblade extends Weapon {
   // draw weapon and progress animation
   void draw() {
     if (robot.hp <= 0) {
+      sawIdle.stop();
+      sawActive.stop();
+
       if (bladeAngle != 0) {
         attachPoint.add(0.5*bladeAngle/abs(bladeAngle)*(robot.deathAnimLength - robot.deathFrames)/robot.deathAnimLength, 
                         3*(robot.deathAnimLength - robot.deathFrames)/robot.deathAnimLength);

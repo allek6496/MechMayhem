@@ -10,6 +10,7 @@ import processing.sound.*;
 //import processing.awt.PSurfaceAWT.SmoothCanvas;
 
 float pauseScale = 4;
+int frameR = 45;
 
 SoundFile buildMusic1;
 SoundFile buildMusic2;
@@ -44,7 +45,7 @@ void setup() {
   loadAudio(); // do this first cause it takes a while (no load screen cause thats hard lol)
   // fullScreen();
   size(800,800);
-  frameRate(45);
+  frameRate(frameR);
   createGUI();
   startScreen = loadImage("startScreen.png");
   gameOverScreen = loadImage("gameOver.png");
@@ -169,9 +170,9 @@ void draw() {
       playerBot.reset();
 
       // this section is extremely cancer, but just update the list of upgradable parts based off of what's fully upgraded
-      boolean weaponUpgradable = playerBot.weaponLevel != 2;
-      boolean chassisUpgradable = playerBot.chassisLevel != 1;
-      boolean movementUpgradable = playerBot.movementLevel != 1;
+      boolean weaponUpgradable = playerBot.weaponLevel < 2;
+      boolean chassisUpgradable = playerBot.chassisLevel == 0;
+      boolean movementUpgradable = playerBot.movementLevel == 0;
 
       // how many parts can still be upgraded
       int upgradableParts = 0;
@@ -233,6 +234,12 @@ void draw() {
     playerBot.update(null);
 
     if (start){ // if the user presses the next round button, proceed to round 2.
+      buildMusic1.stop();
+      buildMusic2.stop();
+      println(round);
+      if (round < 3) megalovania.loop();
+      else despair.loop(); 
+
       println("Started");
       selectedUpgrade = "";
 
@@ -301,6 +308,7 @@ void loadAudio() {
 
   megalovania = new SoundFile(this, "Audio/megalovania.wav");
   megalovania.amp(0.5);
+
   despair = new SoundFile(this, "Audio/despair.wav");
   despair.amp(0.5);
 }
