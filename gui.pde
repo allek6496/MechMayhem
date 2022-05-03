@@ -33,29 +33,29 @@ synchronized public void drawpreGameWindow(PApplet appc, GWinData data) { //_COD
 } //_CODE_:preGameWindow:325301:
 
 public void chassisChosen(GDropList source, GEvent event) { //_CODE_:chassisChoice:730452:
-  if (chassisChoice.getSelectedIndex() == 0) // if the user picks a small chassis.
+  if (chassisChoice.getSelectedIndex() == 1) // if the user picks a small chassis.
     chassis = 0;
-  else if (chassisChoice.getSelectedIndex() == 1)
-    chassis = 1;
   else if (chassisChoice.getSelectedIndex() == 2)
+    chassis = 1;
+  else if (chassisChoice.getSelectedIndex() == 3)
     chassis = 2;
 } //_CODE_:chassisChoice:730452:
 
 public void weaponChosen(GDropList source, GEvent event) { //_CODE_:weaponChoice:239023:
-  if (weaponChoice.getSelectedIndex() == 0) // if the user picks a small chassis.
+  if (weaponChoice.getSelectedIndex() == 1) // if the user picks a small chassis.
     weapon = 0;
-  else if (weaponChoice.getSelectedIndex() == 1)
-    weapon = 1;
   else if (weaponChoice.getSelectedIndex() == 2)
+    weapon = 1;
+  else if (weaponChoice.getSelectedIndex() == 3)
     weapon = 2;
 } //_CODE_:weaponChoice:239023:
 
 public void movementChosen(GDropList source, GEvent event) { //_CODE_:movementChoice:257625:
-  if (movementChoice.getSelectedIndex() == 0) // if the user picks a small chassis.
+  if (movementChoice.getSelectedIndex() == 1) // if the user picks a small chassis.
     movement = 0;
-  else if (movementChoice.getSelectedIndex() == 1)
-    movement = 1;
   else if (movementChoice.getSelectedIndex() == 2)
+    movement = 1;
+  else if (movementChoice.getSelectedIndex() == 3)
     movement = 2;
 } //_CODE_:movementChoice:257625:
 

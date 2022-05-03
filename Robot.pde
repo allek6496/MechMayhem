@@ -577,6 +577,15 @@ class Robot {
         setMovement(movementType, movementLevel);        
     }
 
+    // more powerful version of reset that removes upgrades
+    void die() {
+        weaponLevel = 0;
+        chassisLevel = 0;
+        movementLevel = 0;
+
+        reset();
+    }
+
     // side length
     int length() {
         return 12*(size+4);

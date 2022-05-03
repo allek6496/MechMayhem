@@ -69,23 +69,28 @@ void draw() {
   textAlign(LEFT,TOP);
   text("LOL",0,0);
 
+  // death screen (doesn't exist, just go to main menu)
   if (round == -1) {
     println("Death Screen");
     round = 0;
     // TODO: death screen, time-out back to main menu
   }
 
+  // main menu, doesn't exist, just go right to the build screen
   if (round == 0) {
     playerBot = new Robot(chassis, weapon, movement, aggressiveness, width/2, height/2, PI/2, true);
     round = 0.5;
     // possible start-menu
   }
 
+  // build screen
   if (round == 0.5){
+    // show the build window
     preGameWindow.setVisible(true);
 
     playerBot.update(null);
 
+    // check for changes in the player's build and update accordingly
     if (playerBot.size != chassis) playerBot.setChassis(chassis, 0);
     if (playerBot.weaponType != weapon) playerBot.setWeapon(weapon, 0);
     if (playerBot.movementType != movement) playerBot.setMovement(movement, 0);
@@ -94,15 +99,16 @@ void draw() {
       round += 0.5;      
       start = false;
 
-      preGameWindow.setVisible(false);
+      preGameWindow.setVisible(false);  
+      duringGameWindow.setVisible(true);
 
     //reset(preGameWindow);
     }
   }
   
+  // in game, any round number
   if (round > 0 && round % 1 == 0){
-    duringGameWindow.setVisible(true);
-
+    // update the aggressiveness from the slider
     playerBot.aggressiveness = aggressiveness;
 
     playerBot.update(robot1);
@@ -115,7 +121,7 @@ void draw() {
     println("A1: ", round(playerBot.aggressiveness*100)/100.0, "\tA2: ", round(robot1.aggressiveness*100)/100.0);
     println();
 
-    // looks good :)
+    // if you win, but not for a set number of frames
     if (robot1.hp <= 0 && playerBot.hp != 0 && robot1.deathFrames >= robot1.deathAnimLength){
       round += 0.5; // go to the upgrade bot gui.
       println("Win");
@@ -135,11 +141,14 @@ void draw() {
       if (weaponUpgradable) upgradableParts++;
       if (chassisUpgradable) upgradableParts++;
       if (movementUpgradable) upgradableParts++;
-      
-      String[] newUpgradeList = new String[upgradableParts];
+
+      // make a list with the first item as "select an upgrade, or no upgrades available"      
+      String[] newUpgradeList = new String[upgradableParts+1];
+      if (upgradableParts == 0) newUpgradeList[0] = "No Upgrade";
+      else newUpgradeList[0] = "Select an Upgrade";
 
       // what index is the next to upgrade
-      int nextUpgrade = 0;
+      int nextUpgrade = 1;
 
       for (int i = 0; i < upgradableParts; i++) {
         if (weaponUpgradable) {
@@ -157,29 +166,39 @@ void draw() {
         }
 
         upgradeChoice.setItems(newUpgradeList, 0);
-        // upgradeChosen(null, null);
+        upgradeChosen(null, null);
       }
     }
+
+    // if you die, but not for a set number of frames
     else if (playerBot.hp <= 0 && playerBot.deathFrames >= playerBot.deathAnimLength) {
+      duringGameWindow.setVisible(false);
+
       round = -1; // go to the defeat screen. (even if both die at the same frame, gotta survive it)
-      playerBot.reset();
+      
+      // make a new random enemy
+      enemyLevel = 0;
+      robot1 = randomBot(enemyLevel);
     }
   }
   
-  if (round == 1.5){
+  // upgrade menu
+  if (round*2 % 2 == 1){
+    // show the bot, but don't give it a target
     playerBot.update(null);
 
     if (start){ // if the user presses the next round button, proceed to round 2.
       println("Started");
 
-      round -= 0.5;
+      round += 0.5;
       enemyLevel += 1;
       robot1 = randomBot(enemyLevel);
 
       start = false;
 
+      // update which guis are visible
       postGameWindow.setVisible(false);
-      //reset(postGameWindow);
+      duringGameWindow.setVisible(true);
     }
   }
 }

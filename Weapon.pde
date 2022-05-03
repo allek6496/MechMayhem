@@ -61,11 +61,12 @@ class Weapon {
     } else if (opponent.powerFrames >= 0 && opponent.size == 2) {
       opponent.dealDamage(damage/2.0, loc);
 
-    // we take 1/2 damage lmao  
+    // we take full damage lmao  
     } else if (opponent.powerFrames >= 0 && opponent.size == 1) {
+      println("ok");
       PVector position = new PVector(robot.pos.x, robot.pos.y);
       position.add(PVector.sub(opponent.pos, robot.pos).div(2));
-      robot.dealDamage(damage/2.0, position);
+      robot.dealDamage(damage, position);
     
     // no relavent powerups
     } else {
@@ -125,20 +126,17 @@ class Laser extends Weapon {
     // checks if this laser has hit an opponent
     boolean colliding(Robot opponent) {
       // reflect if it's a spinning bot
-      if (opponent.size == 1 && opponent.powerFrames >= 0) {
+      if (opponent.size == 1 && opponent.powerFrames >= 0 && pos.dist(opponent.pos) < opponent.radius()) {
         // this is a very naive approach because I can't be bothered to find the exact collision point and where it should go etc, this should look alright
 
-        // if it's inside the bot
-        if (pos.dist(opponent.pos) < opponent.radius()) {
-          // first project the velocity onto a vector to the center of opponent 
-          PVector laserToBot = PVector.sub(opponent.pos, pos);
+        // first project the velocity onto a vector to the center of opponent 
+        PVector laserToBot = PVector.sub(opponent.pos, pos);
 
-          laserToBot.mult(PVector.dot(laserToBot, vel) / pow(laserToBot.mag(), 2)); // laserToBot is now the projection of velocity towards the bot
+        laserToBot.mult(PVector.dot(laserToBot, vel) / pow(laserToBot.mag(), 2)); // laserToBot is now the projection of velocity towards the bot
 
-          // subtract double the velocity towards the bot, to basically reflect it away
-          vel.sub(laserToBot.mult(2));
-        }
-
+        // subtract double the velocity towards the bot, to basically reflect it away
+        vel.sub(laserToBot.mult(2));
+        
         reflected = true;
 
         return false;
@@ -147,6 +145,7 @@ class Laser extends Weapon {
       } else if (reflected && pos.dist(robot.pos) < robot.radius()) {
         dealDamage(robot, damage, pos);
         pulses.remove(this);
+        for (int i = 0; i < 30; i++) println("IT WORKS");
         return false;
 
       // if there's no special case, just return if they've collided with opponent
