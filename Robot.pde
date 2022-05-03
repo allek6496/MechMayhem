@@ -135,9 +135,11 @@ class Robot {
 
         // draw the bot
         pushMatrix();
-    
+
         // make the bot's center 0,0 and rotate so up is forward
         translate(pos.x,pos.y);
+        drawHealth();
+
         rotate(-1*rotation + PI/2);
         scale(sizeFactor); // only used for the small bot when it jumps
 
@@ -332,6 +334,21 @@ class Robot {
         else return TWO_PI-heading;
     }
 
+    void drawHealth() {
+        pushMatrix();
+        translate(0, -1*(radius() + 15));
+
+        noStroke();
+        rectMode(CENTER);
+        fill(150, 15, 0);
+        rect(0, 0, sqrt(maxHP())*5, 3);
+
+        fill(255, 50, 0);
+        rect(0, 0, sqrt(maxHP())*5 * hp / maxHP(), 3);
+
+        popMatrix();
+    }
+
     // draws only the chassis
     void drawBody() {
         rectMode(CENTER);
@@ -389,13 +406,8 @@ class Robot {
         this.chassisLevel = level;
         hp = maxHP();
 
-        println("Setting chassis to", level);
-
         setWeapon(weaponType, weaponLevel);
         setMovement(movementType, movementLevel);
-
-        println("Weapon:", weaponLevel);
-        println();
     }
 
     void setWeapon(int weaponType, int level) {

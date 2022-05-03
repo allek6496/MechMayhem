@@ -1,14 +1,24 @@
 // TODO:
 // I'm getting a concurrentModificationException when I close the main window, idk what's up with that
-// The first item selected doesn't count for upgrading, fix that
 // PARTS @Rayz
 
 import g4p_controls.*;
+// import processing.cor.PApplet;
+import processing.sound.*;
 //import java.awt.Frame;
 //import processing.awt.PSurfaceAWT;
 //import processing.awt.PSurfaceAWT.SmoothCanvas;
 
 float pauseScale = 4;
+
+SoundFile buildMusic1;
+SoundFile buildMusic2;
+SoundFile[] hammerSounds;
+SoundFile[] laserSounds;
+SoundFile sawIdle;
+SoundFile sawActive;
+SoundFile megalovania;
+SoundFile despair;
 
 Robot playerBot;
 Robot robot1;
@@ -28,12 +38,14 @@ int weapon;
 int movement;
 
 void setup() {
+  loadAudio(); // do this first cause it takes a while (no load screen cause thats hard lol)
   // fullScreen();
   size(800,800);
   frameRate(45);
   createGUI();
+
   loadShapesL();
-  
+
   /**
   First three numbers:
   0        | 1      | 2
@@ -51,10 +63,7 @@ void setup() {
   
  // chassis = 
   aggressiveness = aggroSlider.getValueF(); // initializing aggressiveness from the initial value of the aggressive slider.
-  
-  playerBot = new Robot(chassis, weapon, movement, aggressiveness, width/2, height/2, PI/2, true); // the chassis, weapon, and movement are 0 initially
-  robot1 = randomBot(0);
-  
+    
   preGameWindow.setVisible(true);
   duringGameWindow.setVisible(false);
   postGameWindow.setVisible(false);
@@ -62,6 +71,8 @@ void setup() {
 }
 
 void draw() {
+  println(round);
+
   background(100);
 
   stroke(255);
@@ -78,15 +89,24 @@ void draw() {
 
   // main menu, doesn't exist, just go right to the build screen
   if (round == 0) {
+    // if a start menu is implemented (it won't be by Wednesday lol {it's midnight and i'm not actually laughing}), ensure this still only runs once, and move the second buildMusic here
+    buildMusic1.play();
+    
     playerBot = new Robot(chassis, weapon, movement, aggressiveness, width/2, height/2, PI/2, true);
+    robot1 = randomBot(0);
+    
     round = 0.5;
     // possible start-menu
   }
 
   // build screen
   if (round == 0.5){
+    if (!buildMusic1.isPlaying() && !buildMusic2.isPlaying()) buildMusic2.loop();
+
     // show the build window
     preGameWindow.setVisible(true);
+    duringGameWindow.setVisible(false);
+    postGameWindow.setVisible(false);
 
     playerBot.update(null);
 
@@ -96,18 +116,25 @@ void draw() {
     if (playerBot.movementType != movement) playerBot.setMovement(movement, 0);
 
     if (start){ // if the user presses the start button, proceed to round 1.
+      println("Starting!");
       round += 0.5;      
       start = false;
+      buildMusic1.stop();
+      buildMusic2.stop();
 
-      preGameWindow.setVisible(false);  
-      duringGameWindow.setVisible(true);
-
+      if (round < 3) megalovania.loop();
+      else despair.loop(); 
     //reset(preGameWindow);
     }
   }
   
   // in game, any round number
   if (round > 0 && round % 1 == 0){
+    // show the aggression slider
+    preGameWindow.setVisible(false);
+    duringGameWindow.setVisible(true);
+    postGameWindow.setVisible(false);
+
     // update the aggressiveness from the slider
     playerBot.aggressiveness = aggressiveness;
 
@@ -123,11 +150,13 @@ void draw() {
 
     // if you win, but not for a set number of frames
     if (robot1.hp <= 0 && playerBot.hp != 0 && robot1.deathFrames >= robot1.deathAnimLength){
+      stopSFX();
+      megalovania.stop();
+      despair.stop();
+      buildMusic1.play();
+      
       round += 0.5; // go to the upgrade bot gui.
-      println("Win");
-
-      duringGameWindow.setVisible(false);
-      postGameWindow.setVisible(true);
+      println("Won the match!");
 
       playerBot.reset();
 
@@ -166,24 +195,32 @@ void draw() {
         }
 
         upgradeChoice.setItems(newUpgradeList, 0);
-        upgradeChosen(null, null);
       }
     }
 
     // if you die, but not for a set number of frames
     else if (playerBot.hp <= 0 && playerBot.deathFrames >= playerBot.deathAnimLength) {
+      stopSFX();
+      megalovania.stop();
+      despair.stop();
+      
       duringGameWindow.setVisible(false);
 
       round = -1; // go to the defeat screen. (even if both die at the same frame, gotta survive it)
       
       // make a new random enemy
       enemyLevel = 0;
-      robot1 = randomBot(enemyLevel);
     }
   }
   
   // upgrade menu
-  if (round*2 % 2 == 1){
+  if (round*2 % 2 == 1 && round > 1){
+    if (!buildMusic1.isPlaying() && !buildMusic2.isPlaying()) buildMusic2.loop();
+
+    preGameWindow.setVisible(false);
+    duringGameWindow.setVisible(false);
+    postGameWindow.setVisible(true);
+
     // show the bot, but don't give it a target
     playerBot.update(null);
 
@@ -195,10 +232,6 @@ void draw() {
       robot1 = randomBot(enemyLevel);
 
       start = false;
-
-      // update which guis are visible
-      postGameWindow.setVisible(false);
-      duringGameWindow.setVisible(true);
     }
   }
 }
@@ -225,6 +258,55 @@ Robot randomBot(int level) {
   }
 
   return robot;
+}
+
+// audio processed by Kegan, downloaded from pixabay and geoffplaysguitar.bandcamp.com
+void loadAudio() {
+  buildMusic1 = new SoundFile(this, "Audio/Silver_For_Monsters1.wav");
+  buildMusic1.amp(0.6);
+  buildMusic2 = new SoundFile(this, "Audio/Silver_For_Monsters2.wav");
+  buildMusic2.amp(0.6);
+
+  hammerSounds = new SoundFile[3];
+  hammerSounds[0] = new SoundFile(this, "Audio/hammer1.wav");  
+  hammerSounds[0].amp(0.8);
+  hammerSounds[1] = new SoundFile(this, "Audio/hammer2.wav");
+  hammerSounds[1].amp(0.8);
+  hammerSounds[2] = new SoundFile(this, "Audio/hammer3.wav");
+  hammerSounds[2].amp(0.8);
+
+  laserSounds = new SoundFile[4];
+  laserSounds[0] = new SoundFile(this, "Audio/laser1.wav");
+  laserSounds[0].amp(1);
+  laserSounds[1] = new SoundFile(this, "Audio/laser2.wav");
+  laserSounds[1].amp(1);
+  laserSounds[2] = new SoundFile(this, "Audio/laser3.wav");
+  laserSounds[2].amp(1);
+  laserSounds[3] = new SoundFile(this, "Audio/laser4.wav");  
+  laserSounds[3].amp(1);
+
+  sawIdle = new SoundFile(this, "Audio/sawIdle.wav");
+  sawIdle.amp(0.9);
+  sawActive = new SoundFile(this, "Audio/sawActive.wav");
+  sawActive.amp(0.8);
+
+  megalovania = new SoundFile(this, "Audio/megalovania.wav");
+  megalovania.amp(0.5);
+  despair = new SoundFile(this, "Audio/despair.wav");
+  despair.amp(0.5);
+}
+
+void stopAudioGroup (SoundFile[] group) {
+  for (int i = 0; i < group.length; i++) {
+    group[i].stop();
+  }
+}
+
+void stopSFX() {
+  stopAudioGroup(hammerSounds);
+  stopAudioGroup(laserSounds);
+  sawIdle.stop();
+  sawActive.stop();
 }
 
 void loadShapesL() {

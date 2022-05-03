@@ -223,6 +223,8 @@ class Laser extends Weapon {
 
       pulses.add(new Pulse(pos.x, pos.y, angle - robot.rotation));
 
+      laserSounds[int(random(laserSounds.length))].play();
+
     } else cooldown--;
 
     // ===== UPDATE THE PULSES
@@ -290,6 +292,8 @@ class Hammer extends Weapon {
   void checkCollision(Robot opponent) {
     // it can't collide with the enemy if the hammer hasn't fully descended (into madness)
     if (anim != 1 || robot.hp <= 0) return;
+
+    hammerSounds[int(random(hammerSounds.length))].play();
     
     PVector point = new PVector(0, armLength());
     point.rotate(-1*robot.rotation - PI/2);
@@ -386,6 +390,23 @@ class Sawblade extends Weapon {
     if (point.dist(opponent.pos) < size/1.25 + opponent.radius()) {
       point.add(PVector.sub(opponent.pos, point).setMag(size/2.5)); // point is now on the leading edge of the blade
       dealDamage(opponent, damage, point);
+      soundActive();
+    } else {
+      soundIdle();
+    }
+  }
+
+  void soundActive() {
+    if (!sawActive.isPlaying()) {
+      sawIdle.stop();
+      sawActive.loop();
+    }
+  }
+
+  void soundIdle() {
+    if (!sawIdle.isPlaying()) {
+      sawActive.stop();
+      sawIdle.loop();
     }
   }
 
@@ -440,7 +461,7 @@ class Sawblade extends Weapon {
     if (level == 1) shape(sawblade, 0, 0, size*1.2, size*1.2);
     else shape(sawblade, 0, 0, size, size); // shape(shape, x, y, width, height)
 
-    rotation += 0.3 * (robot.deathAnimLength - robot.deathFrames)/robot.deathAnimLength;
+    rotation -= 0.3 * (robot.deathAnimLength - robot.deathFrames)/robot.deathAnimLength;
     popMatrix();
   }
 }
