@@ -31,6 +31,8 @@ float round = 0;
 int enemyLevel = 0;
 String selectedUpgrade = "";
 boolean start; 
+PImage startScreen;
+int counter;
 
 //Player Bot's Variables
 int chassis; 
@@ -43,7 +45,7 @@ void setup() {
   size(800,800);
   frameRate(45);
   createGUI();
-
+  startScreen = loadImage("startScreen.png");
   loadShapesL();
 
   /**
@@ -79,23 +81,25 @@ void draw() {
   textAlign(LEFT,TOP);
   // text("LOL",0,0);
 
-  // death screen (doesn't exist, just go to main menu)
   if (round == -1) {
-    println("Death Screen");
     round = 0;
-    // TODO: death screen, time-out back to main menu
   }
 
   // main menu, doesn't exist, just go right to the build screen
   if (round == 0) {
     // if a start menu is implemented (it won't be by Wednesday lol {it's midnight and i'm not actually laughing}), ensure this still only runs once, and move the second buildMusic here
-    buildMusic1.play();
+    if (counter == 0){
+      buildMusic1.play();
+      counter++;
+    }
     
     playerBot = new Robot(chassis, weapon, movement, aggressiveness, width/2, height/2, PI/2, true);
     robot1 = randomBot(0);
     
-    round = 0.5;
-    // possible start-menu
+    
+    image(startScreen, 0, 0);
+    if (keyPressed)
+      round = 0.5;
   }
 
   // build screen
@@ -310,7 +314,8 @@ void stopSFX() {
 }
 
 void keyPressed() {
-  println("pressed");
+  println("key pressed");
+
 }
 
 void keyReleased() {
@@ -360,3 +365,48 @@ void reset(GWindow... windows){ // ... neccessary? No. Purpose: to reset the sta
 //  frame.setUndecorated(true);
 //  return pSurface;
 //}
+
+/*
+Funky GUI code: if you have G4P Builder installed, this code will be automatically deleted in the gui tab.
+
+public void duringGameKeyHandler(PApplet appc, GWinData data, KeyEvent keyEvent) {
+  if (round > 0 && floor(round) == ceil(round)) {
+    char key = keyEvent.getKey();
+
+    if (key == 'a') {
+      aggressiveness = 0;
+      aggroSlider.setValue(0);
+    } if (key == 's') {
+      aggressiveness = 0.5;
+      aggroSlider.setValue(0.5);
+    } if (key == 'd') {
+      aggressiveness = 1;
+      aggroSlider.setValue(1);
+    }
+
+
+    if (key == ' ') {
+      // powerUsed = true;
+      if (keyEvent.getAction() == keyEvent.PRESS) powerUsed = true;
+      else if (keyEvent.getAction() == keyEvent.RELEASE) powerUsed = false;
+    }
+  }
+}
+
+public void beforeGameKeyHandler(PApplet appc, GWinData data, KeyEvent keyEvent) {
+  if (keyEvent.getKey() == ' ' && round == 0.5) {
+    start = true;
+  }
+}
+
+public void afterGameKeyHandler(PApplet appc, GWinData data, KeyEvent keyEvent) {
+  if (keyEvent.getKey() == ' ' && round > 1 && round * 2 % 2 == 1) {
+    start = true;
+  }
+}
+
+  duringGameWindow.addKeyHandler(this, "duringGameKeyHandler");
+  preGameWindow.addKeyHandler(this, "beforeGameKeyHandler");
+  postGameWindow.addKeyHandler(this, "afterGameKeyHandler");
+
+*/
