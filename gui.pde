@@ -150,7 +150,7 @@ public void createGUI(){
   G4P.setDisplayFont("Century Gothic", 12, 12);
   surface.setTitle("Sketch Window");
   
-  duringGameWindow = GWindow.getWindow(this, "Window title", 0, 0, 420, 200, JAVA2D);
+  duringGameWindow = GWindow.getWindow(this, "Window title", -1000, -1000, 420, 200, JAVA2D);
   duringGameWindow.noLoop();
   duringGameWindow.setActionOnClose(G4P.KEEP_OPEN);
   duringGameWindow.addDrawHandler(this, "drawDuringGameWindow");
@@ -194,7 +194,7 @@ public void createGUI(){
   label4.setTextAlign(GAlign.CENTER, GAlign.MIDDLE);
   label4.setText("Key");
   label4.setOpaque(false);
-  preGameWindow = GWindow.getWindow(this, "Customize your bot", 0, 0, 560, 200, JAVA2D);
+  preGameWindow = GWindow.getWindow(this, "Customize your bot", -1000, -1000, 560, 200, JAVA2D);
   preGameWindow.noLoop();
   preGameWindow.setActionOnClose(G4P.KEEP_OPEN);
   preGameWindow.addDrawHandler(this, "drawpreGameWindow");
@@ -216,7 +216,7 @@ public void createGUI(){
   startButton.setText("START");
   startButton.setLocalColorScheme(GCScheme.PURPLE_SCHEME);
   startButton.addEventHandler(this, "startButtonClicked");
-  postGameWindow = GWindow.getWindow(this, "Upgrade", 0, 0, 240, 150, JAVA2D);
+  postGameWindow = GWindow.getWindow(this, "Upgrade", -1000, -1000, 240, 150, JAVA2D);
   postGameWindow.noLoop();
   postGameWindow.setActionOnClose(G4P.KEEP_OPEN);
   postGameWindow.addDrawHandler(this, "drawpostGameWindow");  

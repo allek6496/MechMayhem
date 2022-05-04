@@ -49,13 +49,14 @@ void setup() {
   size(800,800);
   frameRate(frameR);
   createGUI();
-  preGameWindow.setVisible(false);
-  duringGameWindow.setVisible(false);
-  postGameWindow.setVisible(false);
+  //preGameWindow.setVisible(false);
+  //duringGameWindow.setVisible(false);
+  //postGameWindow.setVisible(false);
 
   startScreen = loadImage("startScreen.png");
   gameOverScreen = loadImage("gameOver.png");
   loadShapesL();
+  int counter = 0;
 
   /**
   First three numbers:
@@ -98,9 +99,9 @@ void draw() {
 
   // main menu, doesn't exist, just go right to the build screen
   if (round == 0) {
-    preGameWindow.setVisible(false);
-    duringGameWindow.setVisible(false);
-    postGameWindow.setVisible(false);
+    //preGameWindow.setVisible(false);
+    //duringGameWindow.setVisible(false);
+    //postGameWindow.setVisible(false);
 
 
     // if a start menu is implemented (it won't be by Wednesday lol {it's midnight and i'm not actually laughing}), ensure this still only runs once, and move the second buildMusic here
@@ -119,7 +120,7 @@ void draw() {
 
     if (mousePressed){
       round = 0.5;
-      preGameWindow.setVisible(true);
+      //preGameWindow.setVisible(true); //CHANGED
     }
   }
 
@@ -129,9 +130,9 @@ void draw() {
     if (!buildMusic1.isPlaying() && !buildMusic2.isPlaying()) buildMusic2.loop();
 
     // show the build window
-    preGameWindow.setVisible(true);
-    duringGameWindow.setVisible(false);
-    postGameWindow.setVisible(false);
+    preGameWindow.setLocation(0, 0);
+    //duringGameWindow.setVisible(false);
+    //postGameWindow.setVisible(false);
 
     playerBot.update(null);
 
@@ -158,8 +159,14 @@ void draw() {
   if (round > 0 && round % 1 == 0){
     // show the aggression slider
     preGameWindow.setVisible(false);
-    duringGameWindow.setVisible(true);
+    //duringGameWindow.setVisible(true);
     postGameWindow.setVisible(false);
+    if (counter == 0){
+      duringGameWindow.setLocation(0, 0);
+      counter++;
+    }
+    else
+      duringGameWindow.setVisible(true);
 
     // update the aggressiveness from the slider
     playerBot.aggressiveness = aggressiveness;
@@ -245,7 +252,13 @@ void draw() {
 
     preGameWindow.setVisible(false);
     duringGameWindow.setVisible(false);
-    postGameWindow.setVisible(true);
+    //postGameWindow.setVisible(true);
+    if (counter == 1){
+      postGameWindow.setLocation(0, 0);
+      counter++;
+    }
+    else
+      postGameWindow.setVisible(true);
 
     // show the bot, but don't give it a target
     playerBot.update(null);
