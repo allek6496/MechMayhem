@@ -282,7 +282,7 @@ class Tread extends MovementPart {
 
   void draw() {
     shapeMode(CENTER);
-    animate(1, 1, 1); 
+    updateShape(1);
   }
 
   private void updateShape(int shapeInterval){ // updates the shape of the MovementPart every shapeInterval. 
@@ -314,21 +314,5 @@ class Tread extends MovementPart {
 
   private void drawTread() {
     shape(shapes[shapeIndex], 0, 0, width, robot.length());
-  }
-
-  private void animate(int smallFrameInterval, int midFrameInterval, int largeFrameInterval){ // animates according to the size of the robot and the desired frequency of animation. Makes sure that the small robot moves the fastest and the large robot moves the slowest.
-    switch (size){
-      case 0: // if small robot
-        updateShape(smallFrameInterval); // change shape every x frames.
-        break;
-
-      case 1: // if medium robot
-        updateShape(midFrameInterval);
-        break;
-        
-      case 2: // if large robot
-       updateShape(largeFrameInterval);
-       break;
-    }
   }
 }
