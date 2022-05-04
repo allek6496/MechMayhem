@@ -3,7 +3,7 @@
 // PARTS @Rayz
 
 import g4p_controls.*;
-// import processing.cor.PApplet;
+//import processing.core.PApplet;
 import processing.sound.*;
 //import java.awt.Frame;
 //import processing.awt.PSurfaceAWT;
@@ -32,6 +32,7 @@ int enemyLevel = 0;
 String selectedUpgrade = "";
 boolean start; 
 PImage startScreen;
+PImage gameOverScreen;
 int counter;
 
 //Player Bot's Variables
@@ -46,6 +47,7 @@ void setup() {
   frameRate(45);
   createGUI();
   startScreen = loadImage("startScreen.png");
+  gameOverScreen = loadImage("gameOver.png");
   loadShapesL();
 
   /**
@@ -66,7 +68,7 @@ void setup() {
  // chassis = 
   aggressiveness = aggroSlider.getValueF(); // initializing aggressiveness from the initial value of the aggressive slider.
     
-  preGameWindow.setVisible(true);
+  preGameWindow.setVisible(false);
   duringGameWindow.setVisible(false);
   postGameWindow.setVisible(false);
   
@@ -82,7 +84,8 @@ void draw() {
   // text("LOL",0,0);
 
   if (round == -1) {
-    round = 0;
+    //round = 0;
+    image(gameOverScreen, 0, 0);
   }
 
   // main menu, doesn't exist, just go right to the build screen
@@ -98,8 +101,10 @@ void draw() {
     
     
     image(startScreen, 0, 0);
-    if (keyPressed)
+    if (keyPressed){
       round = 0.5;
+      preGameWindow.setVisible(true);
+    }
   }
 
   // build screen
