@@ -121,7 +121,6 @@ public void duringGameKeyHandler(PApplet appc, GWinData data, KeyEvent keyEvent)
       aggroSlider.setValue(1);
     }
 
-
     if (key == ' ') {
       // powerUsed = true;
       if (keyEvent.getAction() == keyEvent.PRESS) powerUsed = true;
@@ -131,13 +130,13 @@ public void duringGameKeyHandler(PApplet appc, GWinData data, KeyEvent keyEvent)
 }
 
 public void beforeGameKeyHandler(PApplet appc, GWinData data, KeyEvent keyEvent) {
-  if (keyEvent.getKey() == ' ' && round == 0.5) {
+  if (keyEvent.getKey() == ' ' && keyEvent.getAction() == keyEvent.PRESS && round == 0.5) {
     start = true;
   }
 }
 
 public void afterGameKeyHandler(PApplet appc, GWinData data, KeyEvent keyEvent) {
-  if (keyEvent.getKey() == ' ' && round > 1 && round * 2 % 2 == 1) {
+  if (keyEvent.getKey() == ' ' && keyEvent.getAction() == keyEvent.PRESS  && round > 1 && round * 2 % 2 == 1) {
     start = true;
   }
 }
@@ -196,6 +195,7 @@ public void createGUI(){
   preGameWindow.noLoop();
   preGameWindow.setActionOnClose(G4P.KEEP_OPEN);
   preGameWindow.addDrawHandler(this, "drawpreGameWindow");
+  preGameWindow.addKeyHandler(this, "beforeGameKeyHandler");
   chassisChoice = new GDropList(preGameWindow, 10, 20, 160, 150, 4, 10);
   chassisChoice.setItems(loadStrings("list_730452"), 0);
   chassisChoice.setLocalColorScheme(GCScheme.PURPLE_SCHEME);
@@ -217,6 +217,7 @@ public void createGUI(){
   postGameWindow.noLoop();
   postGameWindow.setActionOnClose(G4P.KEEP_OPEN);
   postGameWindow.addDrawHandler(this, "drawpostGameWindow");
+  postGameWindow.addDrawHandler(this, "afterGameKeyHandler");
   upgradeChoice = new GDropList(postGameWindow, 44, 11, 141, 130, 4, 10);
   upgradeChoice.setItems(loadStrings("list_315672"), 0);
   upgradeChoice.setLocalColorScheme(GCScheme.RED_SCHEME);

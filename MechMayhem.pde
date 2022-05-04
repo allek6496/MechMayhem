@@ -10,7 +10,7 @@ import processing.sound.*;
 //import processing.awt.PSurfaceAWT.SmoothCanvas;
 
 float pauseScale = 4;
-int frameR = 45;
+int frameR = 45; //45 works best because of frame timings rather than actual time timings
 
 SoundFile buildMusic1;
 SoundFile buildMusic2;
@@ -20,6 +20,8 @@ SoundFile sawIdle;
 SoundFile sawActive;
 SoundFile megalovania;
 SoundFile despair;
+
+boolean firstBuildTrack = false;
 
 Robot playerBot;
 Robot robot1;
@@ -47,6 +49,10 @@ void setup() {
   size(800,800);
   frameRate(frameR);
   createGUI();
+  preGameWindow.setVisible(false);
+  duringGameWindow.setVisible(false);
+  postGameWindow.setVisible(false);
+
   startScreen = loadImage("startScreen.png");
   gameOverScreen = loadImage("gameOver.png");
   loadShapesL();
@@ -67,12 +73,7 @@ void setup() {
    */
   
  // chassis = 
-  aggressiveness = aggroSlider.getValueF(); // initializing aggressiveness from the initial value of the aggressive slider.
-    
-  preGameWindow.setVisible(false);
-  duringGameWindow.setVisible(false);
-  postGameWindow.setVisible(false);
-  
+  aggressiveness = aggroSlider.getValueF(); // initializing aggressiveness from the initial value of the aggressive slider.  
 }
 
 void draw() {
@@ -84,6 +85,7 @@ void draw() {
   textAlign(LEFT,TOP);
   // text("LOL",0,0);
 
+  // death screen would go here, nothing implemented
   if (round == -1) {
     //round = 0;
     image(gameOverScreen, 0, 0);
@@ -91,18 +93,26 @@ void draw() {
 
   // main menu, doesn't exist, just go right to the build screen
   if (round == 0) {
+    preGameWindow.setVisible(false);
+    duringGameWindow.setVisible(false);
+    postGameWindow.setVisible(false);
+
+
     // if a start menu is implemented (it won't be by Wednesday lol {it's midnight and i'm not actually laughing}), ensure this still only runs once, and move the second buildMusic here
-    if (counter == 0){
+    if (!firstBuildTrack && !buildMusic1.isPlaying()) {
       buildMusic1.play();
-      counter++;
+      firstBuildTrack = true;
+    } else if (!buildMusic1.isPlaying() && !buildMusic2.isPlaying()) {
+      buildMusic2.loop();
     }
-    
+
     playerBot = new Robot(chassis, weapon, movement, aggressiveness, width/2, height/2, PI/2, true);
     robot1 = randomBot(0);
     
     
     image(startScreen, 0, 0);
-    if (keyPressed){
+
+    if (keyPressed)
       round = 0.5;
       preGameWindow.setVisible(true);
     }
@@ -110,6 +120,7 @@ void draw() {
 
   // build screen
   if (round == 0.5){
+    // don't worry about playing buildMusic1, that started in the main menu. Only transition to loop if needed
     if (!buildMusic1.isPlaying() && !buildMusic2.isPlaying()) buildMusic2.loop();
 
     // show the build window
@@ -128,12 +139,13 @@ void draw() {
       println("Starting!");
       round += 0.5;      
       start = false;
+
+      // stop any old music
       buildMusic1.stop();
       buildMusic2.stop();
+      firstBuildTrack = false; // allow the music to fully re-start when the upgrade menu or start menu is reached
 
-      if (round < 3) megalovania.loop();
-      else despair.loop(); 
-    //reset(preGameWindow);
+      megalovania.loop();
     }
   }
   
@@ -153,15 +165,14 @@ void draw() {
     if (playerBot.hp > 0) playerBot.drawEffects(robot1);
     if (robot1.hp > 0) robot1.drawEffects(playerBot);
 
-    println("R1: ", playerBot.hp, "\tR2: ", robot1.hp);
-    println("A1: ", round(playerBot.aggressiveness*100)/100.0, "\tA2: ", round(robot1.aggressiveness*100)/100.0);
-    println();
-
     // if you win, but not for a set number of frames
     if (robot1.hp <= 0 && playerBot.hp != 0 && robot1.deathFrames >= robot1.deathAnimLength){
+      // stop all sounds
       stopSFX();
       megalovania.stop();
       despair.stop();
+
+      // start buildMusic1
       buildMusic1.play();
       
       round += 0.5; // go to the upgrade bot gui.
@@ -209,6 +220,7 @@ void draw() {
 
     // if you die, but not for a set number of frames
     else if (playerBot.hp <= 0 && playerBot.deathFrames >= playerBot.deathAnimLength) {
+      // stop all sounds
       stopSFX();
       megalovania.stop();
       despair.stop();
@@ -234,16 +246,17 @@ void draw() {
     playerBot.update(null);
 
     if (start){ // if the user presses the next round button, proceed to round 2.
+      round += 0.5;
       buildMusic1.stop();
       buildMusic2.stop();
-      println(round);
+
       if (round < 3) megalovania.loop();
       else despair.loop(); 
 
-      println("Started");
+      // reset the selection
       selectedUpgrade = "";
 
-      round += 0.5;
+
       enemyLevel += 1;
       robot1 = randomBot(enemyLevel);
 
@@ -328,7 +341,6 @@ void stopSFX() {
 
 void keyPressed() {
   println("key pressed");
-
 }
 
 void keyReleased() {

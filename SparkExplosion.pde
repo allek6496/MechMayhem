@@ -41,7 +41,7 @@ class SparkExplosion
     void addMetal() 
   {
    
-    metals.add(new Metal(new PVector(origin.x,origin.y),int(red(colour)),int(blue(colour)),int(green(colour))));
+    metals.add(new Metal(new PVector(origin.x,origin.y),int(red(colour)),int(green(colour)), int(blue(colour))));
   }
   void sq(float x, float y, int r) {
     rectMode(CORNERS);

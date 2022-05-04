@@ -86,7 +86,7 @@ class Weapon {
 }
 
 class Laser extends Weapon {
-  float turnSpeed = 0.2;
+  float turnSpeed = 0.15;
   int fireRate = 25;
 
   float angle; // 0 is straight ahead, varies in [-PI/2, PI/2]
@@ -150,7 +150,6 @@ class Laser extends Weapon {
       } else if (reflected && pos.dist(robot.pos) < robot.radius()) {
         dealDamage(robot, damage, pos);
         pulses.remove(this);
-        for (int i = 0; i < 30; i++) println("IT WORKS");
         return false;
 
       // if there's no special case, just return if they've collided with opponent
@@ -197,35 +196,33 @@ class Laser extends Weapon {
 
     // ===== TURN THE LASER
     boolean onTarget = false; // whether or not the laser is poitning at the enemy
-    float d = robot.headToAng(PVector.sub(opponent.pos, pos).heading());
+    float ideal = robot.headToAng(PVector.sub(opponent.pos, pos).heading());
+    float current = (-1*angle + robot.rotation + TWO_PI) % TWO_PI;
+    // float d = PVector.angleBetween(PVector.fromAngle(ideal), PVector.fromAngle(angle));
 
+    // println();
     // println(d);
+    // // d -= robot.rotation;    
+    // // if (d > PI) d = TWO_PI-d;
 
-    d -= robot.rotation;
-    // d *= -1;
-    
-    if (d > PI) d = TWO_PI - d;
-    else d *= -1;
-
-    println(d);
+    println(current, ideal);
 
     // d = (d + TWO_PI) % TWO_PI; // fix negative numbers
 
     // TODO: I think there's a bug here involving multiple rotations that causes the laser to get stuck
     // turn towards the enemy iff you're not already close enough and alive lol
-    if (abs(d-angle) > turnSpeed && robot.hp > 0) {
-      println(angleCenter);
+    if (abs(current - ideal) > turnSpeed && robot.hp > 0) {
       // positive increases the turn, negative decreases.
       float dMod = 1;
 
       // turn the other way 
-      if (angle > d) dMod *= -1;
+      if (current > ideal) dMod *= -1;
 
       // if it's more than a half rotation away, the above calculation will be backwards from the fastest direction (must go through the 0-TWO_PI transiton)
-      if (abs(d-angle) > PI) dMod *= -1;
+      if (abs(current - ideal) > PI) dMod *= -1;
 
       // turn the robot by the modifier, and keep it bound to TWO_PI radians
-      angle += dMod * turnSpeed;
+      angle -= dMod * turnSpeed;
 
       // bind the angle to prevent shooting backwards (from where it's pointed towards)
       if (angle < angleCenter - 2*PI/3) angle = angleCenter - 2*PI/3;
