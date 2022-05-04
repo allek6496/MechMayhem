@@ -29,7 +29,6 @@ PShape tread1, tread2, tread3, tread4, tread5, tread6, tread7;
 PShape sawblade;
 float aggressiveness;
 boolean powerUsed;
-PImage guiBackground;
 float round = 0;
 int enemyLevel = 0;
 String selectedUpgrade = "";
@@ -55,7 +54,7 @@ void setup() {
 
   startScreen = loadImage("startScreen.png");
   gameOverScreen = loadImage("gameOver.png");
-  loadShapesL();
+  loadShapes();
   int counter = 0;
 
   /**
@@ -370,27 +369,25 @@ void keyReleased() {
 }
 
 void loadShapesL() {
-  tread1  = loadShape("Movement/treads/tread1.svg");
-  tread2  = loadShape("Movement/treads/tread2.svg");
-  tread3  = loadShape("Movement/treads/tread3.svg");
-  tread4  = loadShape("Movement/treads/tread4.svg");
-  tread5  = loadShape("Movement/treads/tread5.svg");
-  tread6  = loadShape("Movement/treads/tread6.svg");
-  tread7  = loadShape("Movement/treads/tread7.svg");
-  sawblade = loadShape("Weapon/SawBlade/sawblade1.svg");
-  guiBackground = loadImage("guiBackground.jpg");
+  tread1  = loadShape("Treads/tread1.svg");
+  tread2  = loadShape("Treads/tread2.svg");
+  tread3  = loadShape("Treads/tread3.svg");
+  tread4  = loadShape("Treads/tread4.svg");
+  tread5  = loadShape("Treads/tread5.svg");
+  tread6  = loadShape("Treads/tread6.svg");
+  tread7  = loadShape("Treads/tread7.svg");
+  sawblade = loadShape("sawblade.svg");
 }
 
 void loadShapes(){ // loads all shapes for weapon and movementPart Classes
-  tread1 = loadShape("Movement\\treads\\tread1.svg");
-  tread2 = loadShape("Movement\\treads\\tread2.svg");
-  tread3 = loadShape("Movement\\treads\\tread3.svg");
-  tread4 = loadShape("Movement\\treads\\tread4.svg");
-  tread5 = loadShape("Movement\\treads\\tread5.svg");
-  tread6 = loadShape("Movement\\treads\\tread6.svg");
-  tread7 = loadShape("Movement\\treads\\tread7.svg");
-  sawblade = loadShape("Weapon\\SawBlade\\sawblade1.svg");
-  guiBackground = loadImage("guiBackground.jpg");
+  tread1 = loadShape("Treads\\tread1.svg");
+  tread2 = loadShape("Treads\\tread2.svg");
+  tread3 = loadShape("Treads\\tread3.svg");
+  tread4 = loadShape("Treads\\tread4.svg");
+  tread5 = loadShape("Treads\\tread5.svg");
+  tread6 = loadShape("Treads\\tread6.svg");
+  tread7 = loadShape("Treads\\tread7.svg");
+  sawblade = loadShape("sawblade.svg");
 }
 
 void reset(GWindow... windows){ // ... neccessary? No. Purpose: to reset the stats and position and rotation of the playerbot while popping up appropriate windows.
