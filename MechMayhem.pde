@@ -130,7 +130,11 @@ void draw() {
     if (!buildMusic1.isPlaying() && !buildMusic2.isPlaying()) buildMusic2.loop();
 
     // show the build window
-    preGameWindow.setLocation(0, 0);
+    if (counter == 0){
+      preGameWindow.setLocation(0, 0);
+      counter++;
+    }
+    
     //duringGameWindow.setVisible(false);
     //postGameWindow.setVisible(false);
 
@@ -161,7 +165,7 @@ void draw() {
     preGameWindow.setVisible(false);
     //duringGameWindow.setVisible(true);
     postGameWindow.setVisible(false);
-    if (counter == 0){
+    if (counter == 1){
       duringGameWindow.setLocation(0, 0);
       counter++;
     }
@@ -253,7 +257,7 @@ void draw() {
     preGameWindow.setVisible(false);
     duringGameWindow.setVisible(false);
     //postGameWindow.setVisible(true);
-    if (counter == 1){
+    if (counter == 2){
       postGameWindow.setLocation(0, 0);
       counter++;
     }
