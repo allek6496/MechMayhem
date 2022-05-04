@@ -239,8 +239,6 @@ class Robot {
         
         // if there is an active powerup
         if (opponent != null && powerFrames >= 0) {
-            float seconds;
-
             switch (size) {
                 // jump to the furthest corner -> 3 seconds
                 case 0:                    
@@ -410,13 +408,13 @@ class Robot {
         float seconds = 0;
         switch(size) {
             case 0:
-                seconds = 1;
+                seconds = 0.75;
                 break;
             case 1:
                 seconds = 3;
                 break;
             case 2:
-                seconds = 6;
+                seconds = 4;
                 break; 
         }
 

@@ -68,7 +68,6 @@ class Weapon {
 
     // we take full damage lmao  
     } else if (opponent.powerFrames >= 0 && opponent.size == 1) {
-      println("ok");
       PVector position = new PVector(robot.pos.x, robot.pos.y);
       position.add(PVector.sub(opponent.pos, robot.pos).div(2));
       robot.dealDamage(damage, position);
@@ -357,11 +356,13 @@ class Hammer extends Weapon {
 
 class Sawblade extends Weapon {
   float lv0Damage = 0.75;
-  float lv1Damage = 1.2;
+  float lv1Damage = 1.3;
 
   float bladeAngle;
   float rotation;
   float length;
+
+  boolean active;
 
   Sawblade(Robot robot) {
     super(0, 0, new PVector(0, 10), robot);
@@ -411,16 +412,23 @@ class Sawblade extends Weapon {
   }
 
   void soundActive() {
+    active = true;
+
     if (!sawActive.isPlaying()) {
-      sawIdle.stop();
+      // sawIdle.stop();
       sawActive.loop();
     }
   }
 
   void soundIdle() {
     if (!sawIdle.isPlaying()) {
-      sawActive.stop();
+      // sawActive.stop();
       sawIdle.loop();
+    }
+
+    if (active) {
+      sawActive.stop();
+      active = false;
     }
   }
 

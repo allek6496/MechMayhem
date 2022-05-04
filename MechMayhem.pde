@@ -19,7 +19,7 @@ SoundFile[] laserSounds;
 SoundFile sawIdle;
 SoundFile sawActive;
 SoundFile megalovania;
-SoundFile despair;
+SoundFile mantisLords;
 
 boolean firstBuildTrack = false;
 
@@ -150,7 +150,7 @@ void draw() {
       buildMusic2.stop();
       firstBuildTrack = false; // allow the music to fully re-start when the upgrade menu or start menu is reached
 
-      megalovania.loop();
+      mantisLords.loop();
     }
   }
   
@@ -175,7 +175,7 @@ void draw() {
       // stop all sounds
       stopSFX();
       megalovania.stop();
-      despair.stop();
+      mantisLords.stop();
 
       // start buildMusic1
       buildMusic1.play();
@@ -228,7 +228,7 @@ void draw() {
       // stop all sounds
       stopSFX();
       megalovania.stop();
-      despair.stop();
+      mantisLords.stop();
       
       duringGameWindow.setVisible(false);
 
@@ -255,8 +255,8 @@ void draw() {
       buildMusic1.stop();
       buildMusic2.stop();
 
-      if (round < 3) megalovania.loop();
-      else despair.loop(); 
+      if (round >= 3) megalovania.loop();
+      else mantisLords.loop(); 
 
       // reset the selection
       selectedUpgrade = "";
@@ -327,8 +327,8 @@ void loadAudio() {
   megalovania = new SoundFile(this, "Audio/megalovania.wav");
   megalovania.amp(0.5);
 
-  despair = new SoundFile(this, "Audio/despair.wav");
-  despair.amp(0.5);
+  mantisLords = new SoundFile(this, "Audio/Mantis_Lords.wav");
+  mantisLords.amp(0.5);
 }
 
 void stopAudioGroup (SoundFile[] group) {
