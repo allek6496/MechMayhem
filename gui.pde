@@ -149,11 +149,13 @@ public void createGUI(){
   G4P.setMouseOverEnabled(false);
   G4P.setDisplayFont("Century Gothic", 12, 12);
   surface.setTitle("Sketch Window");
+  
   duringGameWindow = GWindow.getWindow(this, "Window title", 0, 0, 420, 200, JAVA2D);
   duringGameWindow.noLoop();
   duringGameWindow.setActionOnClose(G4P.KEEP_OPEN);
   duringGameWindow.addDrawHandler(this, "drawDuringGameWindow");
   duringGameWindow.addKeyHandler(this, "duringGameKeyHandler");
+  
   powerButton = new GButton(duringGameWindow, 160, 140, 80, 30);
   powerButton.setText("POWER");
   powerButton.setLocalColorScheme(GCScheme.PURPLE_SCHEME);
@@ -217,8 +219,7 @@ public void createGUI(){
   postGameWindow = GWindow.getWindow(this, "Upgrade", 0, 0, 240, 150, JAVA2D);
   postGameWindow.noLoop();
   postGameWindow.setActionOnClose(G4P.KEEP_OPEN);
-  postGameWindow.addDrawHandler(this, "drawpostGameWindow");
-  postGameWindow.addDrawHandler(this, "afterGameKeyHandler");
+  postGameWindow.addDrawHandler(this, "drawpostGameWindow");  
   upgradeChoice = new GDropList(postGameWindow, 44, 11, 141, 130, 4, 10);
   upgradeChoice.setItems(loadStrings("list_315672"), 0);
   upgradeChoice.setLocalColorScheme(GCScheme.RED_SCHEME);
