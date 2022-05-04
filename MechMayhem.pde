@@ -117,7 +117,7 @@ void draw() {
     
     image(startScreen, 0, 0);
 
-    if (keyPressed) {
+    if (mousePressed){
       round = 0.5;
       preGameWindow.setVisible(true);
     }

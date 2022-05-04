@@ -147,6 +147,7 @@ public void createGUI(){
   G4P.messagesEnabled(false);
   G4P.setGlobalColorScheme(GCScheme.BLUE_SCHEME);
   G4P.setMouseOverEnabled(false);
+  G4P.setDisplayFont("Century Gothic", 12, 12);
   surface.setTitle("Sketch Window");
   duringGameWindow = GWindow.getWindow(this, "Window title", 0, 0, 420, 200, JAVA2D);
   duringGameWindow.noLoop();
