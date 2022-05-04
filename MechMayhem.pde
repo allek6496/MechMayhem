@@ -89,6 +89,11 @@ void draw() {
   if (round == -1) {
     //round = 0;
     image(gameOverScreen, 0, 0);
+
+    if (keyPressed) {
+      round = 0;
+    }
+
   }
 
   // main menu, doesn't exist, just go right to the build screen
@@ -112,7 +117,7 @@ void draw() {
     
     image(startScreen, 0, 0);
 
-    if (keyPressed)
+    if (keyPressed) {
       round = 0.5;
       preGameWindow.setVisible(true);
     }
