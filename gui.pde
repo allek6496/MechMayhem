@@ -102,10 +102,10 @@ public void duringGameKeyHandler(PApplet appc, GWinData data, KeyEvent keyEvent)
     if (key == 'a' || key == 'A') {
       aggressiveness = 0;
       aggroSlider.setValue(0);
-    } if (key == 's'|| key == 'B') {
+    } if (key == 's'|| key == 'S') {
       aggressiveness = 0.5;
       aggroSlider.setValue(0.5);
-    } if (key == 'd'|| key == 'C') {
+    } if (key == 'd'|| key == 'D') {
       aggressiveness = 1;
       aggroSlider.setValue(1);
     }
