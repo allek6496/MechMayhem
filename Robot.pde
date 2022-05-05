@@ -41,7 +41,6 @@ class Robot {
     MovementPart mP;
     ArrayList<Weapon> weapons;
 
-    // TODO: build part class
     ArrayList<SparkExplosion> sparks;
     int partsSpawned;
     // ArrayList<Part> parts;
@@ -396,7 +395,6 @@ class Robot {
         partsSpawned += partNum;
         sparks.add(new SparkExplosion(loc, int(random(6*sqrt(damage), 8*sqrt(damage))),partNum,colour));
 
-        // TODO: spawn parts (based off of rolling amount of damage dealt)
     }
 
     // sets the part to a version of the passed type at a given level
@@ -478,7 +476,7 @@ class Robot {
         if (chassisLevel == 0) {
             chassisLevel = 1;
 
-            hp = maxHP(); // small +150, medium +300, large +450. why? not a clue, it probably needs balancing lmao
+            hp = maxHP(); // small +150, medium +300, large +450.
         }
     }
 

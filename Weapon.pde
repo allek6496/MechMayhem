@@ -1,4 +1,3 @@
-// I feel like this should be multiple classes given how differently they all operate but this will work for now
 class Weapon {
   int type; // 0 - saw blade, 1 - laser, 2 - hammer
   Robot robot;
@@ -38,7 +37,6 @@ class Weapon {
   void draw() { return; }
 
   void checkCollision(Robot opponent) { return; }
-
   // gets the screen position of the weapon's base, only really used for laser but it's generalizable so it's here instead
   PVector getPos() {
     PVector pos = new PVector(attachPoint.x, attachPoint.y);
@@ -131,8 +129,7 @@ class Laser extends Weapon {
     boolean colliding(Robot opponent) {
       // reflect if it's a spinning bot
       if (opponent.size == 1 && opponent.powerFrames >= 0 && pos.dist(opponent.pos) < opponent.radius()) {
-        // this is a very naive approach because I can't be bothered to find the exact collision point and where it should go etc, this should look alright
-
+        
         // first project the velocity onto a vector to the center of opponent 
         PVector laserToBot = PVector.sub(opponent.pos, pos);
 
@@ -199,17 +196,8 @@ class Laser extends Weapon {
     float current = (-1*angle + robot.rotation + TWO_PI) % TWO_PI;
     // float d = PVector.angleBetween(PVector.fromAngle(ideal), PVector.fromAngle(angle));
 
-    // println();
-    // println(d);
-    // // d -= robot.rotation;    
-    // // if (d > PI) d = TWO_PI-d;
-
     println(current, ideal);
 
-    // d = (d + TWO_PI) % TWO_PI; // fix negative numbers
-
-    // TODO: I think there's a bug here involving multiple rotations that causes the laser to get stuck
-    // turn towards the enemy iff you're not already close enough and alive lol
     if (abs(current - ideal) > turnSpeed && robot.hp > 0) {
       // positive increases the turn, negative decreases.
       float dMod = 1;
@@ -217,7 +205,7 @@ class Laser extends Weapon {
       // turn the other way 
       if (current > ideal) dMod *= -1;
 
-      // if it's more than a half rotation away, the above calculation will be backwards from the fastest direction (must go through the 0-TWO_PI transiton)
+      // if it's more than a half rotation away, the above calculation will be backwards from the fastest direction (must go through the 0-TWO_PI transition)
       if (abs(current - ideal) > PI) dMod *= -1;
 
       // turn the robot by the modifier, and keep it bound to TWO_PI radians
@@ -254,9 +242,8 @@ class Laser extends Weapon {
 
   }
 
-  // the laser is a bit ugly but oh well
   void draw() {
-    // if it's died, move the laser in a random direction 
+    // if it has died, move the laser in a random direction 
     if (robot.hp <= 0) {
       attachPoint.mult(1 + 0.03*(robot.deathAnimLength - robot.deathFrames)/robot.deathAnimLength);
 
@@ -320,8 +307,6 @@ class Hammer extends Weapon {
   void draw() {
     if (robot.hp <= 0) {
       attachPoint.add(0, 3*(robot.deathAnimLength - robot.deathFrames)/robot.deathAnimLength);
-
-      // angle += 0.15*(robot.deathAnimLength - robot.deathFrames)/robot.deathAnimLength;
     }
 
     anim += 0.1*animDir*(robot.deathAnimLength - robot.deathFrames)/float(robot.deathAnimLength);
@@ -415,14 +400,12 @@ class Sawblade extends Weapon {
     active = true;
 
     if (!sawActive.isPlaying()) {
-      // sawIdle.stop();
       sawActive.loop();
     }
   }
 
   void soundIdle() {
     if (!sawIdle.isPlaying()) {
-      // sawActive.stop();
       sawIdle.loop();
     }
 

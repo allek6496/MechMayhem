@@ -1,13 +1,4 @@
-/*
-NO MECHANICAL EFFECTS ARE PRESENT IN THIS FILE, VISUAL ONLY
-
-Movement
-  Wheel
-    No animation (mostly hidden)
-  Leg (crab style)
-    Animation that plays during movement, continuous back and forth on pivot
-Caution: Only .svg files from Adobe Illustrator or Inkscape work
-*/
+//NO MECHANICAL EFFECTS ARE PRESENT IN THIS FILE, VISUAL ONLY.
 class MovementPart{
   int type; // Tread, Wheel, Leg. 
   int size;
@@ -94,18 +85,6 @@ class Legs extends MovementPart {
     rotate(-legRotation);
     drawLeg(0, 0, 3*PI/8, -1*3*PI/2);
     popMatrix();
-
-    // // front right
-    // drawLeg(robot.length()/2, robot.length()/2 - robot.size, 0, -1*PI/2);
-
-    // // front left
-    // drawLeg(-1*robot.length()/2, robot.length()/2 - 2 - robot.size, PI/8, -1*3*PI/2);
-
-    // // back right
-    // drawLeg(robot.length()/2, -1*robot.length()/2 + 2 + robot.size, PI/4, -1*PI/2);
-
-    // // back left
-    // drawLeg(-1*robot.length()/2, -1*robot.length()/2 + 2 + robot.size, 3*PI/8, -1*3*PI/2);
 
     anim += 0.05*legDir*deathProg;
 
