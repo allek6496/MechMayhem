@@ -1,13 +1,5 @@
-// TODO:
-// I'm getting a concurrentModificationException when I close the main window, idk what's up with that
-// PARTS @Rayz
-
 import g4p_controls.*;
-//import processing.core.PApplet;
 import processing.sound.*;
-//import java.awt.Frame;
-//import processing.awt.PSurfaceAWT;
-//import processing.awt.PSurfaceAWT.SmoothCanvas;
 
 float pauseScale = 4;
 int frameR = 45; //45 works best because of frame timings rather than actual time timings
@@ -25,7 +17,7 @@ boolean firstBuildTrack = false;
 
 Robot playerBot;
 Robot robot1;
-PShape tread1, tread2, tread3, tread4, tread5, tread6, tread7;
+PShape tread1, tread2, tread3, tread4, tread5, tread6, tread7; // each image is a frame of the animation of treads.
 PShape sawblade;
 float aggressiveness;
 boolean powerUsed;
@@ -35,7 +27,7 @@ String selectedUpgrade = "";
 boolean start; 
 PImage startScreen;
 PImage gameOverScreen;
-int counter;
+int counter; // used to make sure certain code only runs once.
 
 //Player Bot's Variables
 int chassis; 
@@ -43,19 +35,13 @@ int weapon;
 int movement;
 
 void setup() {
-  loadAudio(); // do this first cause it takes a while (no load screen cause thats hard lol)
-  // fullScreen();
+  loadAudio(); 
   size(800,800);
   frameRate(frameR);
   createGUI();
-  //preGameWindow.setVisible(false);
-  //duringGameWindow.setVisible(false);
-  //postGameWindow.setVisible(false);
-
   startScreen = loadImage("startScreen.png");
   gameOverScreen = loadImage("gameOver.png");
   loadShapes();
-  int counter = 0;
 
   /**
   First three numbers:
@@ -72,60 +58,37 @@ void setup() {
   Last boolean: Player? true => use setAgression(float) and usePower() to control, false => autonomous
    */
   
- // chassis = 
   aggressiveness = aggroSlider.getValueF(); // initializing aggressiveness from the initial value of the aggressive slider.  
 }
 
 void draw() {
-
   background(100);
-
-  stroke(255);
-  
-  textAlign(LEFT,TOP);
-  // text("LOL",0,0);
-
-  // death screen would go here, nothing implemented
   if (round == -1) {
-    //round = 0;
     image(gameOverScreen, 0, 0);
-
     if (keyPressed) {
       round = 0;
     }
-
   }
 
-  // main menu, doesn't exist, just go right to the build screen
   if (round == 0) {
-    //preGameWindow.setVisible(false);
-    //duringGameWindow.setVisible(false);
-    //postGameWindow.setVisible(false);
-
-
-    // if a start menu is implemented (it won't be by Wednesday lol {it's midnight and i'm not actually laughing}), ensure this still only runs once, and move the second buildMusic here
     if (!firstBuildTrack && !buildMusic1.isPlaying()) {
       buildMusic1.play();
       firstBuildTrack = true;
-    } else if (!buildMusic1.isPlaying() && !buildMusic2.isPlaying()) {
+    } 
+    else if (!buildMusic1.isPlaying() && !buildMusic2.isPlaying()) {
       buildMusic2.loop();
     }
 
     playerBot = new Robot(chassis, weapon, movement, aggressiveness, width/2, height/2, PI/2, true);
     robot1 = randomBot(0);
-    
-    
     image(startScreen, 0, 0);
 
     if (mousePressed){
       round = 0.5;
-      //preGameWindow.setVisible(true); //CHANGED
     }
   }
 
-  // build screen
   if (round == 0.5){
-    // don't worry about playing buildMusic1, that started in the main menu. Only transition to loop if needed
     if (!buildMusic1.isPlaying() && !buildMusic2.isPlaying()) buildMusic2.loop();
 
     // show the build window
@@ -134,9 +97,6 @@ void draw() {
       counter++;
     }
     
-    //duringGameWindow.setVisible(false);
-    //postGameWindow.setVisible(false);
-
     playerBot.update(null);
 
     // check for changes in the player's build and update accordingly
@@ -160,9 +120,7 @@ void draw() {
   
   // in game, any round number
   if (round > 0 && round % 1 == 0){
-    // show the aggression slider
     preGameWindow.setVisible(false);
-    //duringGameWindow.setVisible(true);
     postGameWindow.setVisible(false);
     if (counter == 1){
       duringGameWindow.setLocation(0, 0);
@@ -195,7 +153,6 @@ void draw() {
 
       playerBot.reset();
 
-      // this section is extremely cancer, but just update the list of upgradable parts based off of what's fully upgraded
       boolean weaponUpgradable = playerBot.weaponLevel < 2;
       boolean chassisUpgradable = playerBot.chassisLevel == 0;
       boolean movementUpgradable = playerBot.movementLevel == 0;
@@ -219,16 +176,17 @@ void draw() {
           newUpgradeList[nextUpgrade] = "Weapon";
           weaponUpgradable = false;
           nextUpgrade++;
-        } else if (chassisUpgradable) {
+        } 
+        else if (chassisUpgradable) {
           newUpgradeList[nextUpgrade] = "Chassis";
           chassisUpgradable = false;
           nextUpgrade++;
-        } else if (movementUpgradable) {
+        } 
+        else if (movementUpgradable) {
           newUpgradeList[nextUpgrade] = "Movement";
           movementUpgradable = false;
           nextUpgrade++;
         }
-
         upgradeChoice.setItems(newUpgradeList, 0);
       }
     }
@@ -255,7 +213,6 @@ void draw() {
 
     preGameWindow.setVisible(false);
     duringGameWindow.setVisible(false);
-    //postGameWindow.setVisible(true);
     if (counter == 2){
       postGameWindow.setLocation(0, 0);
       counter++;
@@ -298,15 +255,17 @@ Robot randomBot(int level) {
     // upgrade one of the parts, and if the chosen part can't be upgraded, run it again
     if (upgrade == 0 && robot.chassisLevel == 0) {
       robot.upgradeChassis();
-    } else if (upgrade == 1 && robot.weaponLevel <= 1) {
+    } 
+    else if (upgrade == 1 && robot.weaponLevel <= 1) {
       robot.upgradeWeapon();
-    } else if (upgrade == 2 && robot.movementLevel == 0) {
+    } 
+    else if (upgrade == 2 && robot.movementLevel == 0) {
       robot.upgradeMovement();
-    } else {
+    } 
+    else {
       i--;
     }
   }
-
   return robot;
 }
 
@@ -360,15 +319,7 @@ void stopSFX() {
   sawActive.stop();
 }
 
-void keyPressed() {
-  println("key pressed");
-}
-
-void keyReleased() {
-  if (key == ' ') powerUsed = false;
-}
-
-void loadShapesL() {
+void loadShapesL() { // loads all shapes needed for weapon and movementPart Classes (for Linux)
   tread1  = loadShape("Treads/tread1.svg");
   tread2  = loadShape("Treads/tread2.svg");
   tread3  = loadShape("Treads/tread3.svg");
@@ -379,7 +330,7 @@ void loadShapesL() {
   sawblade = loadShape("sawblade.svg");
 }
 
-void loadShapes(){ // loads all shapes for weapon and movementPart Classes
+void loadShapes(){ // for Windows
   tread1 = loadShape("Treads\\tread1.svg");
   tread2 = loadShape("Treads\\tread2.svg");
   tread3 = loadShape("Treads\\tread3.svg");
@@ -389,68 +340,3 @@ void loadShapes(){ // loads all shapes for weapon and movementPart Classes
   tread7 = loadShape("Treads\\tread7.svg");
   sawblade = loadShape("sawblade.svg");
 }
-
-void reset(GWindow... windows){ // ... neccessary? No. Purpose: to reset the stats and position and rotation of the playerbot while popping up appropriate windows.
-  for (GWindow window : windows)
-    window.setVisible(false);
-   
-  // reset playerbot.
-  playerBot.pos = new PVector(200, 200);
-  playerBot.rotation = 7*PI/4;
-  start = false;
-  powerUsed = false;
-}
-
-//PSurface initSurface() { // implemented this feature so that the windows did not have an annoying top bar. Does not work as it throws an Illegal Exception. 
-//  PSurface pSurface = super.initSurface();
-//  PSurfaceAWT awtSurface = (PSurfaceAWT) surface;
-//  SmoothCanvas smoothCanvas = (SmoothCanvas) awtSurface.getNative();
-//  Frame frame = smoothCanvas.getFrame();
-//  frame.setUndecorated(true);
-//  return pSurface;
-//}
-
-/*
-Funky GUI code: if you have G4P Builder installed, this code will be automatically deleted in the gui tab.
-
-public void duringGameKeyHandler(PApplet appc, GWinData data, KeyEvent keyEvent) {
-  if (round > 0 && floor(round) == ceil(round)) {
-    char key = keyEvent.getKey();
-
-    if (key == 'a') {
-      aggressiveness = 0;
-      aggroSlider.setValue(0);
-    } if (key == 's') {
-      aggressiveness = 0.5;
-      aggroSlider.setValue(0.5);
-    } if (key == 'd') {
-      aggressiveness = 1;
-      aggroSlider.setValue(1);
-    }
-
-
-    if (key == ' ') {
-      // powerUsed = true;
-      if (keyEvent.getAction() == keyEvent.PRESS) powerUsed = true;
-      else if (keyEvent.getAction() == keyEvent.RELEASE) powerUsed = false;
-    }
-  }
-}
-
-public void beforeGameKeyHandler(PApplet appc, GWinData data, KeyEvent keyEvent) {
-  if (keyEvent.getKey() == ' ' && round == 0.5) {
-    start = true;
-  }
-}
-
-public void afterGameKeyHandler(PApplet appc, GWinData data, KeyEvent keyEvent) {
-  if (keyEvent.getKey() == ' ' && round > 1 && round * 2 % 2 == 1) {
-    start = true;
-  }
-}
-
-  duringGameWindow.addKeyHandler(this, "duringGameKeyHandler");
-  preGameWindow.addKeyHandler(this, "beforeGameKeyHandler");
-  postGameWindow.addKeyHandler(this, "afterGameKeyHandler");
-
-*/
