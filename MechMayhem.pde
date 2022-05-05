@@ -28,6 +28,7 @@ boolean start;
 PImage startScreen;
 PImage gameOverScreen;
 int counter; // used to make sure certain code only runs once.
+boolean mouseActivated = false;
 
 //Player Bot's Variables
 int chassis; 
@@ -38,10 +39,19 @@ void setup() {
   loadAudio(); 
   size(800,800);
   frameRate(frameR);
+
   createGUI();
+
+  preGameWindow.setVisible(false);
+  duringGameWindow.setVisible(false);
+  postGameWindow.setVisible(false);
+  preGameWindow.setLocation(0, 0);
+  duringGameWindow.setLocation(0, 0);
+  postGameWindow.setLocation(100, 100);
+  
   startScreen = loadImage("startScreen.png");
   gameOverScreen = loadImage("gameOver.png");
-  loadShapes();
+  loadShapesL();
 
   /**
   Parameters of Robot Constructor.
@@ -65,9 +75,18 @@ void setup() {
 void draw() {
   background(100);
   if (round == -1) {
+    duringGameWindow.setVisible(false);
+    preGameWindow.setVisible(false);
+    postGameWindow.setVisible(false);
+
     image(gameOverScreen, 0, 0);
-    if (keyPressed) {
-      round = 0;
+    if (mouseActivated) {
+      mouseActivated = false;
+      round = 0.5;
+
+      // yes this is the same code as below, no i don't feel like making a function
+      playerBot = new Robot(chassis, weapon, movement, aggressiveness, width/2, height/2, PI/2, true);
+      robot1 = randomBot(0);
     }
   }
 
@@ -80,23 +99,22 @@ void draw() {
       buildMusic2.loop();
     }
 
-    playerBot = new Robot(chassis, weapon, movement, aggressiveness, width/2, height/2, PI/2, true);
-    robot1 = randomBot(0);
     image(startScreen, 0, 0);
 
-    if (keyPressed){
+    if (mouseActivated){
+      mouseActivated = false;
       round = 0.5;
+      
+      playerBot = new Robot(chassis, weapon, movement, aggressiveness, width/2, height/2, PI/2, true);
+      robot1 = randomBot(0);
     }
   }
 
   if (round == 0.5){
     if (!buildMusic1.isPlaying() && !buildMusic2.isPlaying()) buildMusic2.loop();
-
-    // show the build window
-    if (counter == 0){
-      preGameWindow.setLocation(0, 0);
-      counter++;
-    }
+    duringGameWindow.setVisible(false);
+    preGameWindow.setVisible(true);
+    postGameWindow.setVisible(false);
     
     playerBot.update(null);
 
@@ -121,14 +139,9 @@ void draw() {
   
   // in game, any round number
   if (round > 0 && round % 1 == 0){
+    duringGameWindow.setVisible(true);
     preGameWindow.setVisible(false);
     postGameWindow.setVisible(false);
-    if (counter == 1){
-      duringGameWindow.setLocation(0, 0);
-      counter++;
-    }
-    else
-      duringGameWindow.setVisible(true);
 
     // update the aggressiveness from the slider
     playerBot.aggressiveness = aggressiveness;
@@ -214,12 +227,7 @@ void draw() {
 
     preGameWindow.setVisible(false);
     duringGameWindow.setVisible(false);
-    if (counter == 2){
-      postGameWindow.setLocation(0, 0);
-      counter++;
-    }
-    else
-      postGameWindow.setVisible(true);
+    postGameWindow.setVisible(true);
 
     // show the bot, but don't give it a target
     playerBot.update(null);
@@ -331,13 +339,6 @@ void loadShapesL() { // loads all shapes needed for weapon and movementPart Clas
   sawblade = loadShape("sawblade.svg");
 }
 
-void loadShapes(){ // for Windows
-  tread1 = loadShape("Treads\\tread1.svg");
-  tread2 = loadShape("Treads\\tread2.svg");
-  tread3 = loadShape("Treads\\tread3.svg");
-  tread4 = loadShape("Treads\\tread4.svg");
-  tread5 = loadShape("Treads\\tread5.svg");
-  tread6 = loadShape("Treads\\tread6.svg");
-  tread7 = loadShape("Treads\\tread7.svg");
-  sawblade = loadShape("sawblade.svg");
+void mouseClicked() {
+  mouseActivated = true;
 }
