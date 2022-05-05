@@ -84,7 +84,7 @@ void draw() {
     robot1 = randomBot(0);
     image(startScreen, 0, 0);
 
-    if (mousePressed){
+    if (keyPressed){
       round = 0.5;
     }
   }
