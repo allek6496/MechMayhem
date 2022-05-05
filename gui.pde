@@ -204,7 +204,8 @@ public void createGUI(){
   postGameWindow = GWindow.getWindow(this, "Upgrade Window", -1000, -1000, 240, 150, JAVA2D);
   postGameWindow.noLoop();
   postGameWindow.setActionOnClose(G4P.KEEP_OPEN);
-  postGameWindow.addDrawHandler(this, "drawpostGameWindow");  
+  postGameWindow.addDrawHandler(this, "drawpostGameWindow");
+  postGameWindow.addKeyHandler(this, "afterGameKeyHandler");
   upgradeChoice = new GDropList(postGameWindow, 44, 11, 141, 130, 4, 10);
   upgradeChoice.setItems(loadStrings("list_315672"), 0);
   upgradeChoice.setLocalColorScheme(GCScheme.RED_SCHEME);
