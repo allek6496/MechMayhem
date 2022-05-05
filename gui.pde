@@ -59,7 +59,7 @@ synchronized public void drawpostGameWindow(PApplet appc, GWinData data) { //_CO
 } //_CODE_:postGameWindow:595249:
 
 public void upgradeChosen(GDropList source, GEvent event) { //_CODE_:upgradeChoice:315672:
-  println("chosen");
+  println("Chosen");
 
   if (upgradeChoice.getSelectedText().equals("Chassis")) {
     playerBot.upgradeChassis();

@@ -196,8 +196,6 @@ class Laser extends Weapon {
     float current = (-1*angle + robot.rotation + TWO_PI) % TWO_PI;
     // float d = PVector.angleBetween(PVector.fromAngle(ideal), PVector.fromAngle(angle));
 
-    println(current, ideal);
-
     if (abs(current - ideal) > turnSpeed && robot.hp > 0) {
       // positive increases the turn, negative decreases.
       float dMod = 1;

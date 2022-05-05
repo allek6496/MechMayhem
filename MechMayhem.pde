@@ -44,6 +44,7 @@ void setup() {
   loadShapes();
 
   /**
+  Parameters of Robot Constructor.
   First three numbers:
   0        | 1      | 2
   Small    | Medium | Large
